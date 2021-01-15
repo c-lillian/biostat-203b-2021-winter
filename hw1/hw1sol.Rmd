@@ -20,13 +20,23 @@ sessionInfo()
 
 1. Apply for the [Student Developer Pack](https://education.github.com/pack) at GitHub using your UCLA email.
 
+**Solution**: Done.
+
 2. Create a **private** repository `biostat-203b-2021-winter` and add `Hua-Zhou`, `Chris-German` and `ElvisCuiHan` as your collaborators with write permission.
+
+**Solution**: Done.
 
 3. Top directories of the repository should be `hw1`, `hw2`, ... Maintain two branches `master` and `develop`. The `develop` branch will be your main playground, the place where you develop solution (code) to homework problems and write up report. The `master` branch will be your presentation area. Submit your homework files (R markdown file `Rmd`, `html` file converted from R markdown, all code and data sets to reproduce results) in `master` branch.
 
+**Solution**: Done.
+
 4. After each homework due date, teaching assistant and instructor will check out your master branch for grading. Tag each of your homework submissions with tag names `hw1`, `hw2`, ... Tagging time will be used as your submission time. That means if you tag your `hw1` submission after deadline, penalty points will be deducted for late submission.
 
+**Solution**: Done.
+
 5. After this course, you can make this repository public and use it to demonstrate your skill sets on job market.
+
+**Solution**: Done.
 
 ## Q2. Linux Shell Commands
 
@@ -49,9 +59,9 @@ Please, do **not** put these data files into Git; they are big. Do **not** copy 
 **PROBABLY NEED TO REFORMAT THIS STUFF**
 
 `zcat` compress or expand files
-`zless` file perusal filter for crt viewing of compressed text one screenful at a time on a soft-copy terminal.
-`zmore` file perusal filter for crt viewing of compressed text
-`zgrep` search possibly compressed files for a regular expression
+`zless` file perusal filter for crt viewing of compressed text one screenful at a time on a soft-copy terminal. It has more functionalities than `zmore` and loads files faster than `zmore`
+`zmore` file perusal filter for crt viewing of compressed text scrolling downward.
+`zgrep` search possibly compressed files for lines that match a regular expression
 
 Contents of `core`:
 
@@ -85,15 +95,31 @@ OUTPUT:
 Display the number of lines in each data file using a similar loop.
 
 **EDIT CHUNK**
-```{bash, eval=F}
+```{bash}
     for datafile in /usr/203b-data/mimic-iv/core/*.gz
       do
-        ls -l $datafile
+        wc -l $datafile
       done
 ```
 
-
 4. Display the first few lines of `admissions.csv.gz`. How many rows are in this data file? How many unique patients (identified by `subject_id`) are in this data file? What are the possible values taken by each of the variable `admission_type`, `admission_location`, `insurance`, `language`, `marital_status`, and `ethnicity`? Also report the count for each unique value of these variables. (Hint: combine Linux commands `zcat`, `head`/`tail`, `awk`, `uniq`, `wc`, and so on.)
+
+```{bash, eval=F}
+
+    for datafile in /usr/203b-data/mimic-iv/core/admissions.csv.gz
+      do
+        zcat $datafile | head -2
+        zcat $datafile | wc -l
+        zcat $datafile | sort | awk -F, '{print $1}' | uniq | wc -l
+      done
+
+```
+**Solution**:
+
+There are 524521 rows in data file 'admissions.csv.gz'.
+There are 257367 unique patients identified by `subject_id` in this data file.
+
+subject_id,hadm_id,admittime,dischtime,deathtime,admission_type,admission_location,discharge_location,insurance,language,marital_status,ethnicity,edregtime,edouttime,hospital_expire_flag
 
 ## Q3. Who's popular in Price and Prejudice
 
@@ -128,3 +154,89 @@ Explain the output. Explain the meaning of `"$1"`, `"$2"`, and `"$3"` in this sh
 ### Q4. More fun with Linux
 
 Try these commands in Bash and interpret the results: `cal`, `cal 2021`, `cal 9 1752` (anything unusual?), `date`, `hostname`, `arch`, `uname -a`, `uptime`, `who am i`, `who`, `w`, `id`, `last | head`, `echo {con,pre}{sent,fer}{s,ed}`, `time sleep 5`, `histor | tail`.
+
+**Solution**:
+
+`cal` displays the calendar of the current month
+```{bash}
+cal
+```
+
+`cal 2021` displays the monthly calendar of the entire 2021 year
+```{bash}
+cal 2021
+```
+
+
+`cal 9 1752` tries to display the calendar of September 1752, but there are dates missing (missing days 3-13).
+```{bash}
+cal 9 1752
+```
+
+`date` gives the current date and time in military time using UTC time zone.
+```{bash}
+date
+```
+
+
+```{bash}
+hostname
+```
+
+
+```{bash}
+arch
+```
+
+
+
+```{bash}
+uname -a
+```
+
+
+
+```{bash}
+uptime
+```
+
+
+```{bash}
+who am i
+```
+
+
+```{bash}
+who
+```
+
+
+```{bash}
+w
+```
+
+
+```{bash}
+id
+```
+
+
+```{bash}
+last | head
+```
+
+
+```{bash}
+echo {con,pre}{sent,fer}{s,ed}
+```
+
+
+```{bash}
+time sleep 5
+```
+
+
+```{bash}
+histor | tail
+```
+

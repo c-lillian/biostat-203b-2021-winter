@@ -102,16 +102,14 @@ Display the number of lines in each data file using a similar loop.
       done
 ```
 
-4. Display the first few lines of `admissions.csv.gz`. How many rows are in this data file? How many unique patients (identified by `subject_id`) are in this data file? What are the possible values taken by each of the variable `admission_type`, `admission_location`, `insurance`, `language`, `marital_status`, and `ethnicity`? Also report the count for each unique value of these variables. (Hint: combine Linux commands `zcat`, `head`/`tail`, `awk`, `uniq`, `wc`, and so on.)
+5. Display the first few lines of `admissions.csv.gz`. How many rows are in this data file? How many unique patients (identified by `subject_id`) are in this data file? What are the possible values taken by each of the variable `admission_type`, `admission_location`, `insurance`, `language`, `marital_status`, and `ethnicity`? Also report the count for each unique value of these variables. (Hint: combine Linux commands `zcat`, `head`/`tail`, `awk`, `uniq`, `wc`, and so on.)
 
 ```{bash, eval=F}
 
-    for datafile in /usr/203b-data/mimic-iv/core/admissions.csv.gz
-      do
-        zcat $datafile | head -2
-        zcat $datafile | wc -l
-        zcat $datafile | sort | awk -F, '{print $1}' | uniq | wc -l
-      done
+zcat /usr/203b-data/mimic-iv/core/admissions.csv.gz | head -2
+zcat /usr/203b-data/mimic-iv/core/admissions.csv.gz | wc -l
+zcat /usr/203b-data/mimic-iv/core/admissions.csv.gz | sort | awk -F, '{print $1}' | uniq | wc -l
+
 
 ```
 **Solution**:
@@ -178,65 +176,63 @@ cal 9 1752
 date
 ```
 
-
+`hostname` prints the name of the host server.
 ```{bash}
 hostname
 ```
 
-
+`arch` prints the machine hardware name. For me, it printed 'x86_64'.
 ```{bash}
 arch
 ```
 
-
-
+`uname -a` prints system information, with the `-a` option specifying to print all information
 ```{bash}
 uname -a
 ```
 
-
-
+`uptime` tells you how long the system has been running, and additionally tells you the current time, the number of users logged on, and the system load averages for the past 1, 5, and 15 min.
 ```{bash}
 uptime
 ```
 
-
+`whoami` prints the username of the current user running the terminal. For me, it prints 'lchen121'.
 ```{bash}
-who am i
+whoami
 ```
 
-
+`who` prints the identifying information for all users logged onto the server.
 ```{bash}
 who
 ```
 
-
+`w` shows the activity of currently logged on users.
 ```{bash}
 w
 ```
 
-
+`id` shows all the user and group information for the current user.
 ```{bash}
 id
 ```
 
-
+`last` shows the first ten listings of last logged in users.
 ```{bash}
 last | head
 ```
 
-
+`echo {con,pre}{sent,fer}{s,ed}` displays text that chooses one option from each of the braces and concatenates them into a string.
 ```{bash}
 echo {con,pre}{sent,fer}{s,ed}
 ```
 
-
+`time sleep 5` times the execution of a script, with a 5 second delay specified (sleep delays for the specified amount of time; in this case, 5 (seconds))
 ```{bash}
 time sleep 5
 ```
 
-
+`history | tail` doesn't do anything for me.
 ```{bash}
-histor | tail
+history | tail
 ```
 

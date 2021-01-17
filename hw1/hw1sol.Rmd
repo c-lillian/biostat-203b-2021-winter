@@ -57,9 +57,15 @@ Please, do **not** put these data files into Git; they are big. Do **not** copy 
 3. Display the contents in the folders `core`, `hosp`, `icu`. What are the functionalities of the bash commands `zcat`, `zless`, `zmore`, and `zgrep`? 
 
 ```{bash}
-zcat /usr/203b-data/mimic-iv/core/
+echo "Contents of 'core'"
+ls -l /usr/203b-data/mimic-iv/core/
+echo '' # line break
+echo "Contents of 'hosp'"
+ls -l /usr/203b-data/mimic-iv/hosp/
+echo '' # line break
+echo "Contents of 'icu'"
+ls -l /usr/203b-data/mimic-iv/icu/
 ```
-
 
 `zcat` - compress or expand files
 
@@ -69,18 +75,6 @@ zcat /usr/203b-data/mimic-iv/core/
 
 `zgrep` - search possibly compressed files for lines that match a regular expression
 
-Contents of `core`:
-
-total 69636; admissions.csv.gz, patients.csv.gz, transfers.csv.gz
-
-
-Contents of `hosp`:
-
-total 4375604; d_hcpcs.csv.gz, diagnoses_icd.csv.gz, d_icd_diagnoses.csv.gz, d_icd_procedures.csv.gz, d_labitems.csv.gz, drgcodes.csv.gz, emar.csv.gz, emar_detail.csv.gz, hcpcsevents.csv.gz, labevents.csv.gz, microbiologyevents.csv.gz, pharmacy.csv.gz, poe.csv.gz, poe_detail.csv.gz, prescriptions.csv.gz, procedures_icd.csv.gz, services.csv.gz
-
-Contents of `icu`:
-
-total 2627900; chartevents.csv.gz, datetimeevents.csv.gz, d_items.csv.gz, icustays.csv.gz, inputevents.csv.gz, outputevents.csv.gz, procedureevents.csv.gz
 
 4. What's the output of following bash script?
     ```{bash, eval=F}
@@ -239,12 +233,15 @@ The first command creating test1.txt with the `>` indicator creates or replaces 
     head -n "$2" "$1" | tail -n "$3"
     ```
 Using `chmod` make the file executable by the owner, and run 
-    ```{bash eval=FALSE}
+    ```{bash}
     ./middle.sh pride_and_prejudice.txt 20 5
     ```
 Explain the output. Explain the meaning of `"$1"`, `"$2"`, and `"$3"` in this shell script. Why do we need the first line of the shell script?
 
 **Solution**:
+
+#ASK TA
+I ran `chmod +x middle.sh` to make the file executable by the owner. The output prints 5 lines until line 20 from the middle of the text file, which in pride_and_prejudice.txt specifies lines for the author and the editor (lines 16-20). We need the first line of the shell script in order to execute the commands using the `sh` shell, since we are using bash shell in the code chunk above.
 
 
 
@@ -253,6 +250,8 @@ Explain the output. Explain the meaning of `"$1"`, `"$2"`, and `"$3"` in this sh
 Try these commands in Bash and interpret the results: `cal`, `cal 2021`, `cal 9 1752` (anything unusual?), `date`, `hostname`, `arch`, `uname -a`, `uptime`, `who am i`, `who`, `w`, `id`, `last | head`, `echo {con,pre}{sent,fer}{s,ed}`, `time sleep 5`, `histor | tail`.
 
 **Solution**:
+
+#ASK TA: Should I have the chunk auto evaluate?
 
 `cal` displays the calendar of the current month
 ```{bash}
@@ -281,27 +280,27 @@ hostname
 ```
 
 `arch` prints the machine hardware name. For me, it printed 'x86_64'.
-```{bash}
+```{bash, eval=F}
 arch
 ```
 
 `uname -a` prints system information, with the `-a` option specifying to print all information
-```{bash}
+```{bash, eval=F}
 uname -a
 ```
 
 `uptime` tells you how long the system has been running, and additionally tells you the current time, the number of users logged on, and the system load averages for the past 1, 5, and 15 min.
-```{bash}
+```{bash, eval=F}
 uptime
 ```
 
 `whoami` prints the username of the current user running the terminal. For me, it prints 'lchen121'.
-```{bash}
+```{bash, eval=F}
 whoami
 ```
 
 `who` prints the identifying information for all users logged onto the server.
-```{bash}
+```{bash, eval=F}
 who
 ```
 
@@ -329,6 +328,7 @@ echo {con,pre}{sent,fer}{s,ed}
 ```{bash, eval=F}
 time sleep 5
 ```
+
 #ASK TA ABOUT THIS
 `history | tail` doesn't do anything for me.
 ```{bash}

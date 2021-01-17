@@ -56,12 +56,18 @@ Please, do **not** put these data files into Git; they are big. Do **not** copy 
 
 3. Display the contents in the folders `core`, `hosp`, `icu`. What are the functionalities of the bash commands `zcat`, `zless`, `zmore`, and `zgrep`? 
 
-**PROBABLY NEED TO REFORMAT THIS STUFF**
+```{bash}
+zcat /usr/203b-data/mimic-iv/core/
+```
 
-`zcat` compress or expand files
-`zless` file perusal filter for crt viewing of compressed text one screenful at a time on a soft-copy terminal. It has more functionalities than `zmore` and loads files faster than `zmore`
-`zmore` file perusal filter for crt viewing of compressed text scrolling downward.
-`zgrep` search possibly compressed files for lines that match a regular expression
+
+`zcat` - compress or expand files
+
+`zless` - file perusal filter for crt viewing of compressed text one screenful at a time on a soft-copy terminal. It has more functionalities than `zmore` and loads files faster than `zmore`
+
+`zmore` - file perusal filter for crt viewing of compressed text scrolling downward
+
+`zgrep` - search possibly compressed files for lines that match a regular expression
 
 Contents of `core`:
 
@@ -100,6 +106,8 @@ There are 524,521 lines in `admissions.csv.gz`, 383,221 lines in `patients.csv.g
 5. Display the first few lines of `admissions.csv.gz`. How many rows are in this data file? How many unique patients (identified by `subject_id`) are in this data file? What are the possible values taken by each of the variable `admission_type`, `admission_location`, `insurance`, `language`, `marital_status`, and `ethnicity`? Also report the count for each unique value of these variables. (Hint: combine Linux commands `zcat`, `head`/`tail`, `awk`, `uniq`, `wc`, and so on.)
 
 **Solution**:
+
+
 Here are the first few rows of `admissions.csv.gz`:
 ```{bash}
 zcat /usr/203b-data/mimic-iv/core/admissions.csv.gz | head
@@ -110,6 +118,7 @@ There are 524521 rows in data file 'admissions.csv.gz'.
 zcat /usr/203b-data/mimic-iv/core/admissions.csv.gz | wc -l
 ```
 #ASK TA ABOUT THIS
+
 There are 257367 unique patients identified by `subject_id` in this data file.
 ```{bash, eval=F}
 zcat /usr/203b-data/mimic-iv/core/admissions.csv.gz |  awk -F, '{print $1}' | 
@@ -128,6 +137,7 @@ sort | uniq
 ```
 
 #ASK TA ABOUT THIS
+
 There are 11 possible values taken by variable `admission_location`: ' ' (blank), AMBULATORY SURGERY TRANSFER, CLINIC REFERRAL, EMERGENCY ROOM, INFORMATION NOT AVAILABLE, INTERNAL TRANSFER TO OR FROM PSYCH, PACU, PHYSICIAN REFERRAL, PROCEDURE SITE, TRANSFER FROM HOSPITAL, TRANSFER FROM SKILLED NURSING FACILITY, WALK-IN/SELF REFERRAL.
 ```{bash, eval=F}
 # possible values for admission_location
@@ -162,6 +172,7 @@ sort | uniq | wc -l
 ```
 
 #ASK TA ABOUT THIS
+
 There are 5 possible values taken by variable `insurance`: ' ' (blank), DIVORCED, MARRIED, SINGLE, WIDOWED.
 ```{bash, eval=F}
 # possible values for marital_status
@@ -193,15 +204,20 @@ sort | uniq | wc -l
     ```
 Do **not** put this text file `pride_and_prejudice.txt` in Git. Using a `for` loop, how would you tabulate the number of times each of the four characters is mentioned?
 
+
 **Solution**:
 
+I used a `for` loop iterating the names into the `grep` command to search for the name and output the count using the `-o` option (`-o` outputs the matches, ignoring lines). `wc -l` counts the number of lines in the output. 'Elizabeth' appeared 634 times, 'Darcy' appeared 417 times, 'Jane' appeared 294 times, and 'Lydia' appeared 170 times.
+#ASK TA: Does wc -l always include an extra line (see Q2.5 where it does)
 ```{bash, eval=F}
-for character in pride_and_prejudice.txt
-  
+character=('Elizabeth' 'Darcy' 'Jane' 'Lydia')
+for name in "${character[@]}"
+  do
+    echo $name':'
+    grep -o $name pride_and_prejudice.txt | wc -l
+  done
+
 ```
-
-
-
 2. What's the difference between the following two commands?
     ```{bash eval=FALSE}
     echo 'hello, world' > test1.txt
@@ -210,6 +226,10 @@ for character in pride_and_prejudice.txt
     ```{bash eval=FALSE}
     echo 'hello, world' >> test2.txt
     ```
+**Solution**:
+
+The first command creating test1.txt with the `>` indicator creates or replaces the file each time with a file that contains the text 'hello, world'. The second command for test2.txt with the `>>` indicator creates the file with the 'hello, world' text if it does not exist yet, and appends the 'hello, world' text if the file already exists in the directory.
+
 
 3. Using your favorite text editor (e.g., `vi`), type the following and save the file as `middle.sh`:
     ```{bash eval=FALSE}
@@ -223,6 +243,10 @@ Using `chmod` make the file executable by the owner, and run
     ./middle.sh pride_and_prejudice.txt 20 5
     ```
 Explain the output. Explain the meaning of `"$1"`, `"$2"`, and `"$3"` in this shell script. Why do we need the first line of the shell script?
+
+**Solution**:
+
+
 
 ### Q4. More fun with Linux
 

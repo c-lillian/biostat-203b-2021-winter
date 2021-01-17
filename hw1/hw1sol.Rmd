@@ -83,41 +83,107 @@ total 2627900; chartevents.csv.gz, datetimeevents.csv.gz, d_items.csv.gz, icusta
         ls -l $datafile
       done
     ```
-OUTPUT:
-
--rw-r--r--. 1 huazhou huazhou 17224843 Jan 11 01:55 /usr/203b-data/mimic-iv/core/admissions.csv.gz
-
--rw-r--r--. 1 huazhou huazhou 2884996 Jan 11 01:54 /usr/203b-data/mimic-iv/core/patients.csv.gz
-
--rw-r--r--. 1 huazhou huazhou 51188147 Jan 11 01:55 /usr/203b-data/mimic-iv/core/transfers.csv.gz
-
-
 Display the number of lines in each data file using a similar loop.
 
-**EDIT CHUNK**
+**Solution**: 
+
+The bash script above lists the datafiles of .gz type within the core directory found with path /usr/203b-data/mimic-iv/core/.
+
+There are 524,521 lines in `admissions.csv.gz`, 383,221 lines in `patients.csv.gz`, and 2,192,964 lines in `transfers.csv.gz`.
 ```{bash}
     for datafile in /usr/203b-data/mimic-iv/core/*.gz
       do
-        wc -l $datafile
+        zcat $datafile | wc -l
       done
 ```
 
 5. Display the first few lines of `admissions.csv.gz`. How many rows are in this data file? How many unique patients (identified by `subject_id`) are in this data file? What are the possible values taken by each of the variable `admission_type`, `admission_location`, `insurance`, `language`, `marital_status`, and `ethnicity`? Also report the count for each unique value of these variables. (Hint: combine Linux commands `zcat`, `head`/`tail`, `awk`, `uniq`, `wc`, and so on.)
 
-```{bash, eval=F}
-
-zcat /usr/203b-data/mimic-iv/core/admissions.csv.gz | head -2
-zcat /usr/203b-data/mimic-iv/core/admissions.csv.gz | wc -l
-zcat /usr/203b-data/mimic-iv/core/admissions.csv.gz | sort | awk -F, '{print $1}' | uniq | wc -l
-
-
-```
 **Solution**:
+Here are the first few rows of `admissions.csv.gz`:
+```{bash}
+zcat /usr/203b-data/mimic-iv/core/admissions.csv.gz | head
+```
 
 There are 524521 rows in data file 'admissions.csv.gz'.
+```{bash, eval=F}
+zcat /usr/203b-data/mimic-iv/core/admissions.csv.gz | wc -l
+```
+#ASK TA ABOUT THIS
 There are 257367 unique patients identified by `subject_id` in this data file.
+```{bash, eval=F}
+zcat /usr/203b-data/mimic-iv/core/admissions.csv.gz |  awk -F, '{print $1}' | 
+sort | uniq | wc -l
 
-subject_id,hadm_id,admittime,dischtime,deathtime,admission_type,admission_location,discharge_location,insurance,language,marital_status,ethnicity,edregtime,edouttime,hospital_expire_flag
+awk -F, '{print $1}' /usr/203b-data/mimic-iv/core/admissions.csv.gz | 
+uniq | wc -l
+
+```
+
+There are 9 possible values taken by variable `admission_type`: AMBULATORY OBSERVATION, DIRECT EMER., DIRECT OBSERVATION, EU OBSERVATION, EW EMER., OBSERVATION ADMIT, SURGICAL SAME DAY ADMISSION, URGENT.
+```{bash, eval=F}
+# possible values for admission_type
+zcat /usr/203b-data/mimic-iv/core/admissions.csv.gz | awk -F, '{print $6}' | 
+sort | uniq 
+```
+
+#ASK TA ABOUT THIS
+There are 11 possible values taken by variable `admission_location`: ' ' (blank), AMBULATORY SURGERY TRANSFER, CLINIC REFERRAL, EMERGENCY ROOM, INFORMATION NOT AVAILABLE, INTERNAL TRANSFER TO OR FROM PSYCH, PACU, PHYSICIAN REFERRAL, PROCEDURE SITE, TRANSFER FROM HOSPITAL, TRANSFER FROM SKILLED NURSING FACILITY, WALK-IN/SELF REFERRAL.
+```{bash, eval=F}
+# possible values for admission_location
+zcat /usr/203b-data/mimic-iv/core/admissions.csv.gz | awk -F, '{print $7}' | 
+sort | uniq 
+
+# lines in output
+zcat /usr/203b-data/mimic-iv/core/admissions.csv.gz | awk -F, '{print $7}' | 
+sort | uniq | wc -l
+```
+
+There are 3 possible values taken by variable `insurance`: Medicaid, Medicare, Other.
+```{bash, eval=F}
+# possible values for insurance
+zcat /usr/203b-data/mimic-iv/core/admissions.csv.gz | awk -F, '{print $9}' | 
+sort | uniq 
+
+# lines in output
+zcat /usr/203b-data/mimic-iv/core/admissions.csv.gz | awk -F, '{print $9}' | 
+sort | uniq | wc -l 
+```
+
+There are 2 possible values taken by variable `insurance`: ?, ENGLISH.
+```{bash, eval=F}
+# possible values for language
+zcat /usr/203b-data/mimic-iv/core/admissions.csv.gz | awk -F, '{print $10}' | 
+sort | uniq 
+
+#lines in output
+zcat /usr/203b-data/mimic-iv/core/admissions.csv.gz | awk -F, '{print $10}' | 
+sort | uniq | wc -l
+```
+
+#ASK TA ABOUT THIS
+There are 5 possible values taken by variable `insurance`: ' ' (blank), DIVORCED, MARRIED, SINGLE, WIDOWED.
+```{bash, eval=F}
+# possible values for marital_status
+zcat /usr/203b-data/mimic-iv/core/admissions.csv.gz | awk -F, '{print $11}' | 
+sort | uniq 
+
+#lines in output
+zcat /usr/203b-data/mimic-iv/core/admissions.csv.gz | awk -F, '{print $11}' | 
+sort | uniq | wc -l
+```
+
+There are 8 possible values taken by variable `ethnicity`: AMERICAN INDIAN/ALASKA NATIVE, ASIAN, BLACK/AFRICAN AMERICAN, HISPANIC/LATINO, OTHER, UNABLE TO OBTAIN, UNKNOWN, WHITE.
+```{bash, eval=F}
+# possible values for ethnicity
+zcat /usr/203b-data/mimic-iv/core/admissions.csv.gz | awk -F, '{print $12}' | 
+sort | uniq 
+
+#lines in output
+zcat /usr/203b-data/mimic-iv/core/admissions.csv.gz | awk -F, '{print $12}' | 
+sort | uniq | wc -l
+```
+
 
 ## Q3. Who's popular in Price and Prejudice
 
@@ -126,6 +192,15 @@ subject_id,hadm_id,admittime,dischtime,deathtime,admission_type,admission_locati
     curl http://www.gutenberg.org/cache/epub/42671/pg42671.txt > pride_and_prejudice.txt
     ```
 Do **not** put this text file `pride_and_prejudice.txt` in Git. Using a `for` loop, how would you tabulate the number of times each of the four characters is mentioned?
+
+**Solution**:
+
+```{bash, eval=F}
+for character in pride_and_prejudice.txt
+  
+```
+
+
 
 2. What's the difference between the following two commands?
     ```{bash eval=FALSE}
@@ -222,15 +297,15 @@ last | head
 ```
 
 `echo {con,pre}{sent,fer}{s,ed}` displays text that chooses one option from each of the braces and concatenates them into a string.
-```{bash}
+```{bash, eval=F}
 echo {con,pre}{sent,fer}{s,ed}
 ```
 
 `time sleep 5` times the execution of a script, with a 5 second delay specified (sleep delays for the specified amount of time; in this case, 5 (seconds))
-```{bash}
+```{bash, eval=F}
 time sleep 5
 ```
-
+#ASK TA ABOUT THIS
 `history | tail` doesn't do anything for me.
 ```{bash}
 history | tail

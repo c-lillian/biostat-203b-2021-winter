@@ -67,11 +67,11 @@ echo "Contents of 'icu'"
 ls -l /usr/203b-data/mimic-iv/icu/
 ```
 
-`zcat` - compress or expand files
+`zcat` - compresses or expands files
 
-`zless` - file perusal filter for crt viewing of compressed text one screenful at a time on a soft-copy terminal. It has more functionalities than `zmore` and loads files faster than `zmore`
+`zless` - file perusal filter for crt viewing of compressed text one screenful at a time on a soft-copy terminal. It has more functionalities than `zmore` and loads files faster than `zmore`.
 
-`zmore` - file perusal filter for crt viewing of compressed text scrolling downward
+`zmore` - file perusal filter for crt viewing of compressed text, primary function is viewing compressed text by scrolling downward.
 
 `zgrep` - search possibly compressed files for lines that match a regular expression
 
@@ -97,12 +97,14 @@ There are 524,521 lines in `admissions.csv.gz`, 383,221 lines in `patients.csv.g
       done
 ```
 
+
+
 5. Display the first few lines of `admissions.csv.gz`. How many rows are in this data file? How many unique patients (identified by `subject_id`) are in this data file? What are the possible values taken by each of the variable `admission_type`, `admission_location`, `insurance`, `language`, `marital_status`, and `ethnicity`? Also report the count for each unique value of these variables. (Hint: combine Linux commands `zcat`, `head`/`tail`, `awk`, `uniq`, `wc`, and so on.)
 
 **Solution**:
 
 
-Here are the first few rows of `admissions.csv.gz`:
+Here are the first few (10) rows of `admissions.csv.gz`:
 ```{bash}
 zcat /usr/203b-data/mimic-iv/core/admissions.csv.gz | head
 ```
@@ -111,82 +113,91 @@ There are 524521 rows in data file 'admissions.csv.gz'.
 ```{bash, eval=F}
 zcat /usr/203b-data/mimic-iv/core/admissions.csv.gz | wc -l
 ```
-#ASK TA ABOUT THIS
 
-There are 257367 unique patients identified by `subject_id` in this data file.
+There are 257366 unique patients identified by `subject_id` in this data file.
 ```{bash, eval=F}
-zcat /usr/203b-data/mimic-iv/core/admissions.csv.gz |  awk -F, '{print $1}' | 
-sort | uniq | wc -l
-
-awk -F, '{print $1}' /usr/203b-data/mimic-iv/core/admissions.csv.gz | 
-uniq | wc -l
-
+zcat /usr/203b-data/mimic-iv/core/admissions.csv.gz |  
+awk -F, '{if (NR>1) print $1}' | sort | uniq | wc -l
 ```
 
-There are 9 possible values taken by variable `admission_type`: AMBULATORY OBSERVATION, DIRECT EMER., DIRECT OBSERVATION, EU OBSERVATION, EW EMER., OBSERVATION ADMIT, SURGICAL SAME DAY ADMISSION, URGENT.
+There are 9 possible values taken by variable `admission_type`. Counts are reported in parentheses after each possible value. 
+
+AMBULATORY OBSERVATION (7259), DIRECT EMER. (21595), DIRECT OBSERVATION (20014), EU OBSERVATION (100938), EW EMER. (158032), OBSERVATION ADMIT (55532), SURGICAL SAME DAY ADMISSION (41103), URGENT (47970). 
+
 ```{bash, eval=F}
 # possible values for admission_type
-zcat /usr/203b-data/mimic-iv/core/admissions.csv.gz | awk -F, '{print $6}' | 
-sort | uniq 
+zcat /usr/203b-data/mimic-iv/core/admissions.csv.gz | 
+awk -F, '{if (NR>1) print $6}' | sort | uniq -c
+
+# number of possible values taken
+zcat /usr/203b-data/mimic-iv/core/admissions.csv.gz | 
+awk -F, '{if (NR>1) print $6}' | sort | uniq | wc -l
 ```
 
-#ASK TA ABOUT THIS
+There are 12 possible values taken by variable `admission_location`. Counts are reported in parentheses after each possible value.
 
-There are 11 possible values taken by variable `admission_location`: ' ' (blank), AMBULATORY SURGERY TRANSFER, CLINIC REFERRAL, EMERGENCY ROOM, INFORMATION NOT AVAILABLE, INTERNAL TRANSFER TO OR FROM PSYCH, PACU, PHYSICIAN REFERRAL, PROCEDURE SITE, TRANSFER FROM HOSPITAL, TRANSFER FROM SKILLED NURSING FACILITY, WALK-IN/SELF REFERRAL.
+' ' (blank) (60437), AMBULATORY SURGERY TRANSFER (191), CLINIC REFERRAL (10678), EMERGENCY ROOM (246241), INFORMATION NOT AVAILABLE (379), INTERNAL TRANSFER TO OR FROM PSYCH (4484), PACU (6075), PHYSICIAN REFERRAL (127648), PROCEDURE SITE (8453), TRANSFER FROM HOSPITAL (39150), TRANSFER FROM SKILLED NURSING FACILITY (4069), WALK-IN/SELF REFERRAL (16715).
 ```{bash, eval=F}
 # possible values for admission_location
-zcat /usr/203b-data/mimic-iv/core/admissions.csv.gz | awk -F, '{print $7}' | 
-sort | uniq 
+zcat /usr/203b-data/mimic-iv/core/admissions.csv.gz | 
+awk -F, '{if (NR>1) print $7}' | sort | uniq -c
 
-# lines in output
-zcat /usr/203b-data/mimic-iv/core/admissions.csv.gz | awk -F, '{print $7}' | 
-sort | uniq | wc -l
+# number of possible values taken
+zcat /usr/203b-data/mimic-iv/core/admissions.csv.gz | 
+awk -F, '{if (NR>1) print $7}' | sort | uniq | wc -l
 ```
 
-There are 3 possible values taken by variable `insurance`: Medicaid, Medicare, Other.
+There are 3 possible values taken by variable `insurance`. Counts are reported in parentheses after each possible value. 
+
+Medicaid (50962), Medicare (171492), Other (302066).
 ```{bash, eval=F}
 # possible values for insurance
-zcat /usr/203b-data/mimic-iv/core/admissions.csv.gz | awk -F, '{print $9}' | 
-sort | uniq 
+zcat /usr/203b-data/mimic-iv/core/admissions.csv.gz | 
+awk -F, '{if (NR>1) print $9}' | sort | uniq -c
 
-# lines in output
-zcat /usr/203b-data/mimic-iv/core/admissions.csv.gz | awk -F, '{print $9}' | 
-sort | uniq | wc -l 
+# number of possible values taken
+zcat /usr/203b-data/mimic-iv/core/admissions.csv.gz | 
+awk -F, '{if (NR>1) print $9}' | sort | uniq | wc -l 
 ```
 
-There are 2 possible values taken by variable `insurance`: ?, ENGLISH.
+There are 2 possible values taken by variable `insurance`. Counts are reported in parentheses after each possible value.
+
+? (46231), ENGLISH (478289).
 ```{bash, eval=F}
 # possible values for language
-zcat /usr/203b-data/mimic-iv/core/admissions.csv.gz | awk -F, '{print $10}' | 
-sort | uniq 
+zcat /usr/203b-data/mimic-iv/core/admissions.csv.gz | 
+awk -F, '{if (NR>1) print $10}' | sort | uniq -c
 
-#lines in output
-zcat /usr/203b-data/mimic-iv/core/admissions.csv.gz | awk -F, '{print $10}' | 
-sort | uniq | wc -l
+# number of possible values taken
+zcat /usr/203b-data/mimic-iv/core/admissions.csv.gz |
+awk -F, '{if (NR>1) print $10}' | sort | uniq | wc -l
 ```
 
-#ASK TA ABOUT THIS
 
-There are 5 possible values taken by variable `insurance`: ' ' (blank), DIVORCED, MARRIED, SINGLE, WIDOWED.
+There are 5 possible values taken by variable `insurance`. Counts are reported in parentheses after each possible value.
+
+' ' (blank) (66133), DIVORCED (33762), MARRIED (195326), SINGLE (180453), WIDOWED (48846).
 ```{bash, eval=F}
 # possible values for marital_status
-zcat /usr/203b-data/mimic-iv/core/admissions.csv.gz | awk -F, '{print $11}' | 
-sort | uniq 
+zcat /usr/203b-data/mimic-iv/core/admissions.csv.gz | 
+awk -F, '{if (NR>1) print $11}' | sort | uniq -c
 
-#lines in output
-zcat /usr/203b-data/mimic-iv/core/admissions.csv.gz | awk -F, '{print $11}' | 
-sort | uniq | wc -l
+# number of possible values taken
+zcat /usr/203b-data/mimic-iv/core/admissions.csv.gz | 
+awk -F, '{if (NR>1) print $11}' | sort | uniq | wc -l
 ```
 
-There are 8 possible values taken by variable `ethnicity`: AMERICAN INDIAN/ALASKA NATIVE, ASIAN, BLACK/AFRICAN AMERICAN, HISPANIC/LATINO, OTHER, UNABLE TO OBTAIN, UNKNOWN, WHITE.
+There are 8 possible values taken by variable `ethnicity`. Counts are reported in parentheses after each possible value.
+
+AMERICAN INDIAN/ALASKA NATIVE (1536), ASIAN (24522), BLACK/AFRICAN AMERICAN (80526), HISPANIC/LATINO (29887), OTHER (26844), UNABLE TO OBTAIN (3742), UNKNOWN (19419), WHITE (338044).
 ```{bash, eval=F}
 # possible values for ethnicity
-zcat /usr/203b-data/mimic-iv/core/admissions.csv.gz | awk -F, '{print $12}' | 
-sort | uniq 
+zcat /usr/203b-data/mimic-iv/core/admissions.csv.gz | 
+awk -F, '{if (NR>1) print $12}' | sort | uniq -c
 
-#lines in output
-zcat /usr/203b-data/mimic-iv/core/admissions.csv.gz | awk -F, '{print $12}' | 
-sort | uniq | wc -l
+# number of possible values taken
+zcat /usr/203b-data/mimic-iv/core/admissions.csv.gz | 
+awk -F, '{if (NR>1) print $12}' | sort | uniq | wc -l
 ```
 
 
@@ -202,7 +213,6 @@ Do **not** put this text file `pride_and_prejudice.txt` in Git. Using a `for` lo
 **Solution**:
 
 I used a `for` loop iterating the names into the `grep` command to search for the name and output the count using the `-o` option (`-o` outputs the matches, ignoring lines). `wc -l` counts the number of lines in the output. 'Elizabeth' appeared 634 times, 'Darcy' appeared 417 times, 'Jane' appeared 294 times, and 'Lydia' appeared 170 times.
-#ASK TA: Does wc -l always include an extra line (see Q2.5 where it does)
 ```{bash, eval=F}
 character=('Elizabeth' 'Darcy' 'Jane' 'Lydia')
 for name in "${character[@]}"
@@ -212,6 +222,8 @@ for name in "${character[@]}"
   done
 
 ```
+
+
 2. What's the difference between the following two commands?
     ```{bash eval=FALSE}
     echo 'hello, world' > test1.txt
@@ -238,25 +250,25 @@ Using `chmod` make the file executable by the owner, and run
     ```
 Explain the output. Explain the meaning of `"$1"`, `"$2"`, and `"$3"` in this shell script. Why do we need the first line of the shell script?
 
+
 **Solution**:
 
-#ASK TA
-I ran `chmod +x middle.sh` to make the file executable by the owner. The output prints 5 lines until line 20 from the middle of the text file, which in pride_and_prejudice.txt specifies lines for the author and the editor (lines 16-20). We need the first line of the shell script in order to execute the commands using the `sh` shell, since we are using bash shell in the code chunk above.
 
+I ran `chmod +x middle.sh` to make the file executable by the owner. The output prints 5 lines until line 20 from the middle of the text file, which in pride_and_prejudice.txt specifies lines for the author and the editor (lines 16-20). We need the first line of the shell script in order to execute the commands using the `sh` shell, since we are using bash shell in the code chunk above. The exclamation mark in line 1 is formatting related.
 
 
 ### Q4. More fun with Linux
 
-Try these commands in Bash and interpret the results: `cal`, `cal 2021`, `cal 9 1752` (anything unusual?), `date`, `hostname`, `arch`, `uname -a`, `uptime`, `who am i`, `who`, `w`, `id`, `last | head`, `echo {con,pre}{sent,fer}{s,ed}`, `time sleep 5`, `histor | tail`.
+Try these commands in Bash and interpret the results: `cal`, `cal 2021`, `cal 9 1752` (anything unusual?), `date`, `hostname`, `arch`, `uname -a`, `uptime`, `who am i`, `who`, `w`, `id`, `last | head`, `echo {con,pre}{sent,fer}{s,ed}`, `time sleep 5`, `history | tail`.
 
 **Solution**:
 
-#ASK TA: Should I have the chunk auto evaluate?
 
 `cal` displays the calendar of the current month
 ```{bash}
 cal
 ```
+
 
 `cal 2021` displays the monthly calendar of the entire 2021 year
 ```{bash}
@@ -269,69 +281,82 @@ cal 2021
 cal 9 1752
 ```
 
+
 `date` gives the current date and time in military time using UTC time zone.
 ```{bash}
 date
 ```
+
 
 `hostname` prints the name of the host server.
 ```{bash}
 hostname
 ```
 
+
 `arch` prints the machine hardware name. For me, it printed 'x86_64'.
-```{bash, eval=F}
+```{bash}
 arch
 ```
 
+
 `uname -a` prints system information, with the `-a` option specifying to print all information
-```{bash, eval=F}
+```{bash}
 uname -a
 ```
 
+
 `uptime` tells you how long the system has been running, and additionally tells you the current time, the number of users logged on, and the system load averages for the past 1, 5, and 15 min.
-```{bash, eval=F}
+```{bash}
 uptime
 ```
 
+
 `whoami` prints the username of the current user running the terminal. For me, it prints 'lchen121'.
-```{bash, eval=F}
+```{bash}
 whoami
 ```
 
+
 `who` prints the identifying information for all users logged onto the server.
-```{bash, eval=F}
+```{bash}
 who
 ```
+
 
 `w` shows the activity of currently logged on users.
 ```{bash}
 w
 ```
 
+
 `id` shows all the user and group information for the current user.
 ```{bash}
 id
 ```
+
 
 `last` shows the first ten listings of last logged in users.
 ```{bash}
 last | head
 ```
 
+
 `echo {con,pre}{sent,fer}{s,ed}` displays text that chooses one option from each of the braces and concatenates them into a string.
-```{bash, eval=F}
+```{bash}
 echo {con,pre}{sent,fer}{s,ed}
 ```
 
+
 `time sleep 5` times the execution of a script, with a 5 second delay specified (sleep delays for the specified amount of time; in this case, 5 (seconds))
-```{bash, eval=F}
+```{bash}
 time sleep 5
 ```
 
-#ASK TA ABOUT THIS
-`history | tail` doesn't do anything for me.
+
+`history | tail` prints the last few (up to 10) lines of commands that were entered in the terminal window / in bash. I had to run this with `set -o history` before `history | tail` so that the history recording is enabled.
 ```{bash}
+set -o history
 history | tail
 ```
 

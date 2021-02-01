@@ -12,7 +12,7 @@ Display machine information for reproducibility:
 sessionInfo()
 ```
 
-```{r setup, include = F, eval=T}
+```{r setup}
 knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
 library(tidyverse)
 library(data.table)
@@ -46,7 +46,7 @@ There are quite a few utilities in R for reading data files. Let us test the spe
 
 Using `read.csv` is extremely slow compared to `read_csv` and `fread`. `read_csv` and `fread` are similar in speed on my computer, with `fread` being a bit faster. 
 
-```{r Q2}
+```{r Q2, eval = F}
 
 # setting working directory to the core directory in the mimic-iv dataset
 setwd(paste0(mimic_path,"/core"))
@@ -72,6 +72,8 @@ In this homework, we stick to the tidyverse.
 - length of ICU stay  
 - first ICU unit  
 - last ICU unit  
+
+**Solution: **
 
 There are 69,619 unique `stay_id` values and 50,048 unique `subject_id` values.
 
@@ -121,8 +123,8 @@ ggplot(data = q1p3) +
 ```
 
 
-```{r Q3 Graphs}
-### Graphs
+```{r Q3 Graphs, echo = F}
+### graphs
 
 # histogram for log.stay_length  
 ggplot(data = q1p3, mapping = aes(log.stay_length)) + 
@@ -158,8 +160,6 @@ ggplot(data = q1p3, mapping = aes(last_careunit)) +
 
 
 
-
-
 ## Q4. `admission` data
 
 Information of the patients admitted into hospital is available in `ADMISSION.csv.gz`. See <https://mimic-iv.mit.edu/docs/datasets/core/admissions/> for details of each field in this file. Summarize following variables using appropriate graphs. Explain any patterns you observe.   
@@ -183,8 +183,15 @@ Information of the patients admitted into hospital is available in `ADMISSION.cs
 Note it is possible that one patient (uniquely identified by the `SUBJECT_ID`) is admitted into hospital multiple times. When summarizing some demographic information, it makes sense to summarize based on unique patients. 
 
 
-```{r Q4}
+```{r Q4, include = F, eval = T}
 # summarize using best graph/stuff according to data type (continuous vs categorical etc)
+
+# setting working directory to the core directory in the mimic-iv dataset
+setwd(paste0(mimic_path, "/core"))
+
+
+# admissions <- read_csv("admissions.csv.gz")
+
 ```
 
 
@@ -195,7 +202,13 @@ Explore `patients.csv.gz` (<https://mimic-iv.mit.edu/docs/datasets/core/patients
 - `gender`  
 - `anchor_age` (explain pattern you see)
 
-```{r Q5}
+```{r Q5, include = F, eval = T}
+
+# setting working directory to the core directory in the mimic-iv dataset
+setwd(paste0(mimic_path, "/core"))
+
+
+# patients <- read_csv("patients.csv.gz")
 
 ```
 
@@ -207,7 +220,13 @@ Explore `patients.csv.gz` (<https://mimic-iv.mit.edu/docs/datasets/core/patients
 We are interested in the lab measurements of creatinine, potassium, sodium, chloride, bicarbonate, hematocrit, white blood cell count, glucose, magnesium, calcium, phosphorus, and lactate. Find the `itemid`s of these lab measurements from `d_labitems.csv.gz` and retrieve a subset of `labevents.csv.gz` only containing these items.
 
 
-```{r Q6}
+```{r Q6, include = F, eval = T}
+
+# setting working directory to the hosp directory in the mimic-iv dataset
+setwd(paste0(mimic_path, "/hosp"))
+
+
+# labevents <- read_csv("labevents.csv.gz")
 
 ```
 
@@ -220,7 +239,15 @@ We are interested in the vitals for ICU patients: heart rate, mean and systolic 
 `d_items.csv.gz` (<https://mimic-iv.mit.edu/docs/datasets/icu/d_items/>) is the dictionary for the `ITEMID` in `CHARTEVENTS.csv`. Find potential values of `ITEMID` that correspond to systolic blood pressure, i.e., `LABEL` contains the string `systolic`. 
 
 
-```{r Q7}
+```{r Q7, include = F, eval = T}
+
+# setting working directory to the icu directory in the mimic-iv dataset
+setwd(paste0(mimic_path, "/icu"))
+
+
+# chartevents <- read_csv("chartevents.csv.gz")
+# d_items <- read_csv("d_items.csv.gz")
+
 
 ```
 

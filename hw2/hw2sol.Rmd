@@ -818,8 +818,8 @@ q8 <- icustays %>%
   filter(admitage >= 18) %>%
   # merge firstlab data
   left_join(firstlab, by= "subject_id", "hadm_id") %>%
-  # merge firstvital data
-  left_join(firstvital, by= "subject_id", "hadm_id") %>%
+  # merge firstvitals data
+  left_join(firstvitals, by= "subject_id", "hadm_id") %>%
   # create indicator variable whether pt died within 30 days of admittime
   mutate(binary_death30 = if_else((!is.na(deathtime) 
                           & (difftime(deathtime, admittime, units="days") > 0) 

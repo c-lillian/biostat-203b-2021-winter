@@ -161,14 +161,14 @@ q3 %>%
 ## length of stay (los)
 # log.los
 ggplot(data = q3, mapping = aes(log.los)) + 
-  geom_histogram(bins = 30) +
+  geom_histogram(bins = 30, col = "gray40", fill = "gray90") +
   theme_minimal() +
   labs(x = "Log of Length of ICU Stays (days)", y = "Count", 
        title = "Histogram of Log of Length of ICU Stays")
 
 # los using x log scale
 ggplot(data = q3, mapping = aes(los)) + 
-  geom_histogram(bins = 30) +
+  geom_histogram(bins = 30, col = "gray40", fill = "gray90") +
   scale_x_log10()+
   theme_minimal() +
   labs(x = "Length of ICU Stays [log (days)]", y = "Count", 
@@ -342,6 +342,7 @@ q4.unique_ins <- q4.unique %>%
 count_insurance <- t(q4.unique_ins$n)
 values_insurance <- t(q4.unique_ins$insurance)
 
+
 # summarizing language
 q4.unique_lang <- q4.unique %>% 
   group_by(language) %>% 
@@ -349,6 +350,7 @@ q4.unique_lang <- q4.unique %>%
 
 count_lang <- t(q4.unique_lang$n)
 values_lang <- t(q4.unique_lang$language)
+
 
 # summarizing marital_status
 q4.unique_marital <- q4.unique %>% 
@@ -368,12 +370,16 @@ count_eth <- t(q4.unique_eth$n)
 values_eth <- t(q4.unique_eth$ethnicity)
 
 
-# death (using hospital_expire_flag)
+# summarizing death (using hospital_expire_flag)
 q4.all_death <- q4.all %>% 
+  select(subject_id, deathtime, hospital_expire_flag) %>%
+  group_by(subject_id) %>% 
+  slice_max(hospital_expire_flag) %>% 
+  distinct(subject_id, .keep_all = T) %>% 
   group_by(hospital_expire_flag) %>% 
+  mutate(hospital_expire_flag = as.factor(hospital_expire_flag)) %>% 
   summarise(n = n())
   
-
 count_death <- t(q4.all_death$n)
 values_death <- t(q4.all_death$hospital_expire_flag)
 
@@ -384,37 +390,37 @@ values_death <- t(q4.all_death$hospital_expire_flag)
 
 # admityear
 ggplot(data = q4.all, mapping = aes(admityear)) +
-  geom_histogram(binwidth = 3) +
+  geom_histogram(binwidth = 3, col = "gray40", fill = "gray90") +
   theme_minimal() +
   labs(x = "Year", y = "Number of Admissions",
        title = "Number of Admissions by Year")
 
 # admitmonth
-ggplot(data = q4.all, mapping = aes(admitmonth)) +
-  geom_bar(aes(fill = admitmonth)) +
+ggplot(data = q4.all_admitmonth, mapping = aes(x = admitmonth, y = n)) +
+  geom_point(stat = "identity") +
   theme_minimal() +
   annotate(geom = "text", x = 1:12, 
-           y = count_amonth + 1000, 
+           y = count_amonth + 200, 
            label = as.character(count_amonth), size = 3) +
-  scale_x_discrete(labels = c("Jan.", "Feb.", "Mar.", "Apr.", "May", "June", 
-                              "July", "Aug.", "Sept.", "Oct.", "Nov.", "Dec.")) +
+  scale_x_discrete(labels = c("Jan.", "Feb.", "Mar.", "Apr.", 
+                              "May", "June", "July", "Aug.", 
+                              "Sept.", "Oct.", "Nov.", "Dec.")) +
   labs(x = "Month", y = "Number of Admissions",
        title = "Number of Admissions by Month")
 
 # admitmonthday
-ggplot(data = q4.all_admitmonthday, mapping = aes(admitmonthday)) +
-  geom_histogram(binwidth = 1) +
+ggplot(data = q4.all_admitmonthday, mapping = aes(x = admitmonthday, y = n)) +
+  geom_point(stat = "identity") +
   theme_minimal() +
   labs(x = "Day of the Month", y = "Number of Admissions",
        title = "Number of Admissions by Day of the Month")
 
 # admitwday
-ggplot(data = q4.all, mapping = aes(admitwday)) +
-  geom_bar(aes(fill = admitwday)) +
-  scale_fill_brewer(palette = "Pastel1") +
+ggplot(data = q4.all_admitwday, mapping = aes(x = admitwday, y = n)) +
+  geom_point(stat = "identity") +
   theme_minimal() +
     annotate(geom = "text", x = 1:7, 
-           y = count_awday + 3000, 
+           y = count_awday + 50, 
            label = as.character(count_awday), size = 3) +
   scale_x_discrete(labels = c("Sunday", "Monday", "Tuesday", 
                               "Wednesday", "Thursday", "Friday", "Saturday")) +
@@ -423,14 +429,14 @@ ggplot(data = q4.all, mapping = aes(admitwday)) +
 
 # admithour
 ggplot(data = q4.all, mapping = aes(admithour)) +
-  geom_histogram(bins=24) +
+  geom_histogram(bins=24, col = "gray40", fill = "gray90") +
   theme_minimal() +
   labs(x = "Hour", y = "Number of Admissions",
        title = "Number of Admissions by Hour of Day (Military Time)")
 
 # deathyear
 ggplot(data = q4.all, mapping = aes(admityear)) +
-  geom_histogram(binwidth = 3) +
+  geom_histogram(binwidth = 3, col = "gray40", fill = "gray90") +
   theme_minimal() +
   labs(x = "Year", y = "Number of Deaths",
        title = "Number of Deaths by Year")
@@ -441,10 +447,12 @@ ggplot(data = q4.all, mapping = aes(admission_type)) +
   scale_fill_brewer(palette = "Pastel1") +
   theme_minimal() +
   annotate(geom = "text", x = 1:9, 
-           y = count_atype + 3000, 
+           y = count_atype + 6000, 
            label = as.character(count_atype), size = 3) +
-  theme(axis.text.x = element_text(hjust = 1, angle = 45), 
-        legend.position = "right") +
+  theme(axis.text.x = element_text(hjust = 1, angle = 90), 
+        legend.position = "right",
+        legend.title = element_text(size = 8), 
+        legend.text = element_text(size = 7)) +
   labs(x = "Admissions Type", y = "Number of Admissions",
        title = "Number of Admissions by Type")
 
@@ -452,36 +460,60 @@ ggplot(data = q4.all, mapping = aes(admission_type)) +
 print("Summary of Number of Admissions per Patient")
 summary(q4.all_admitsperpt$n)
 ggplot(data = q4.all_admitsperpt, mapping = aes(n)) +
-  geom_histogram(binwidth = 1) +
+  geom_histogram(binwidth = 1, col = "gray40", fill = "gray90") +
   theme_minimal() +
   labs(x = "Number of Admissions", y = "Number of Patients",
-       title = "Number of Admissions per Patient")
+       title = "Number of Admissions Associated with Unique Patients")
+
+# number of admissions per patient using x log scale
+ggplot(data = q4.all_admitsperpt, mapping = aes(n)) + 
+  geom_histogram(bins = 50, col = "gray40", fill = "gray90") +
+  scale_y_log10()+
+  theme_minimal() +
+  labs(x = "Number of Admissions", y = "Number of Patients [log (count)]", 
+       title = "Histogram of Number of Admissions Associated 
+                with Log Number of Unique Patients")
 
 # admission location
+labs_alocation <- c("AMBULATORY SURGERY XFER", "CLINICAL REFERRAL", 
+                    "EMERGENCY ROOM", "INFO NOT AVAILABLE", 
+                    "INTERNAL XFER TO OR FROM PSYCH", "PACU", 
+                    "PHYSICIAN REFERRAL", "PROCEDURE SITE", 
+                    "XFER FROM HOSPITAL", "XFER FROM SNF", 
+                    "WALK-IN/SELF REFERRAL", "NA")
+
 ggplot(data = q4.all, mapping = aes(admission_location)) +
   geom_bar(aes(fill = admission_location)) +
+  theme_minimal() +
   annotate(geom = "text", x = 1:12, 
            y = count_alocation + 10000, 
            label = as.character(count_alocation), size = 3) +
-  theme(axis.text.x = element_text(hjust = 1, angle = 45), 
-        legend.position = "right") + 
+  scale_x_discrete(labels = labs_alocation) +
+  theme(axis.text.x = element_text(hjust = 1, angle = 90), 
+        legend.position = "right",
+        legend.title = element_text(size = 8), 
+        legend.text = element_text(size = 7)) + 
   labs(x = "Admission Location", y = "Count",
        title = "Admission Location")
 
 # discharge location
 ggplot(data = q4.all, mapping = aes(discharge_location)) +
   geom_bar(aes(fill = discharge_location)) +
+  theme_minimal() +
   annotate(geom = "text", x = 1:14, 
            y = count_dlocation + 10000, 
            label = as.character(count_dlocation), size = 3) +
+  scale_x_discrete(labels = values_dlocation) +
   theme(axis.text.x = element_text(hjust = 1, angle = 45), 
-        legend.position = "right") + 
+        legend.position = "none") + 
   labs(x = "Discharge Location", y = "Count",
        title = "Discharge Location")
 
 # insurance
 ggplot(data = q4.unique, mapping = aes(insurance)) +
   geom_bar(aes(fill = insurance)) +
+  scale_fill_brewer(palette = "Pastel1") +
+  theme_minimal() +
   annotate(geom = "text", x = 1:3, 
            y = count_insurance + 5000, 
            label = as.character(count_insurance), size = 3) +
@@ -492,16 +524,19 @@ ggplot(data = q4.unique, mapping = aes(insurance)) +
 # language
 ggplot(data = q4.unique, mapping = aes(language)) +
   geom_bar(aes(fill = language)) +
+  scale_fill_brewer(palette = "Pastel1") +
+  theme_minimal() +
   annotate(geom = "text", x = 1:2, 
            y = count_lang + 5000, 
            label = as.character(count_lang), size = 3) +
-  theme(legend.position = "right") + 
+  theme(legend.position = "none") + 
   labs(x = "Language", y = "Count",
        title = "Languages of Admitted Patients")
 
-# martial status
+# marital status
 ggplot(data = q4.unique, mapping = aes(marital_status)) +
   geom_bar(aes(fill = marital_status)) +
+  theme_minimal() +
   annotate(geom = "text", x = 1:5, 
            y = count_marital + 2000, 
            label = as.character(count_marital), size = 3) +
@@ -510,27 +545,35 @@ ggplot(data = q4.unique, mapping = aes(marital_status)) +
        title = "Marital Statuses of Admitted Patients")
 
 # ethnicity
+labs_ethnicity <- c("AI/AN", "ASIAN", "BLACK/AA", 
+                    "HISPANIC/LATINO", "OTHER", "UNABLE TO OBTAIN", 
+                    "UNKNOWN", "WHITE")
+
 ggplot(data = q4.unique, mapping = aes(ethnicity)) +
   geom_bar(aes(fill = ethnicity)) +
+  scale_fill_brewer(palette = "Pastel1") +
+  theme_minimal() +
   annotate(geom = "text", x = 1:8, 
            y = count_eth + 6000, 
            label = as.character(count_eth), size = 3) +
+  scale_x_discrete(labels = labs_ethnicity) +
   theme(axis.text.x = element_text(hjust = 1, angle = 45), 
         legend.position = "right") + 
   labs(x = "Ethnicity", y = "Count",
        title = "Ethnicities of Admitted Patients")
 
 # death
-ggplot(data = q4.all, mapping = aes(hospital_expire_flag)) +
-  geom_bar(aes(fill = hospital_expire_flag)) +
+ggplot(data = q4.all_death, mapping = aes(x = hospital_expire_flag, y = n)) +
+  geom_col(aes(fill = as.character(hospital_expire_flag))) +
+  scale_fill_brewer(palette = "Pastel1") +
+  theme_minimal() +
   annotate(geom = "text", x = 1:2, 
-           y = count_death, 
+           y = count_death + 6000, 
            label = as.character(count_death), size = 3) +
   scale_x_discrete(labels = c("Alive", "Deceased")) +
-  theme(axis.text.x = element_text(hjust = 1, angle = 45), 
-        legend.position = "right") + 
+  theme(legend.position = "none") + 
   labs(x = "Status", y = "Count",
-       title = "Vital Status of Patient on Discharge")
+       title = "Vital Status for Each Unique Patient")
 
 ```
 
@@ -579,7 +622,7 @@ q5_anchor_age<- q5_all %>%
 
 The values of `anchor_age` seem off because there is a significant peak of over 60,000 entries where the entered `anchor_age` for a patient was equal to 0. This is a sign that there might be anomalies in data collection or unclear coding of data from the hospital system's end (maybe the patient's age at admission was coded 0 for unknown or underage). 
 
-```{r Q5 Graphs, echo = F}
+```{r Q5 Graphs, echo = F, fig.align = 'center'}
 
 # gender
 ggplot(data = q5_gender, mapping = aes(x = gender, y = pct)) +
@@ -596,7 +639,7 @@ ggplot(data = q5_gender, mapping = aes(x = gender, y = pct)) +
 
 # anchor_age
 ggplot(data = q5_all, mapping = aes(anchor_age)) +
-  geom_histogram(binwidth = 3) +
+  geom_histogram(binwidth = 3, col = "gray40", fill = "gray90") +
   theme_minimal() +
   labs(x = "Age (years)", y = "Count",
        title = "Patient Ages at Hospital Admission")
@@ -678,7 +721,7 @@ We are interested in the vitals for ICU patients: heart rate, mean and systolic 
 
 **Solution**:
 
-```{r Q7 reading in chartevents, include = F, eval = T}
+```{r Q7 reading in chartevents, eval = F}
 
 
 if(!file.exists("chartevents_icustays.csv.gz")){
@@ -699,7 +742,7 @@ chartevents %>%
 ```
 
 
-```{r Q7}
+```{r Q7, eval = F}
 
 transactFile <- str_c(mimic_path,"/icu/d_items.csv.gz")
 chunkSize <- 2000
@@ -754,7 +797,7 @@ and columns contains at least following variables
 - first vitals measurement during ICU stay  
 - an indicator variable whether the patient died within 30 days of hospital admission  #30 day mortality Y/N variable
 
-```{r Q8}
+```{r Q8, eval = F}
 
 firstlab <- q6 %>%
   group_by(subject_id, hadm_id) %>% 

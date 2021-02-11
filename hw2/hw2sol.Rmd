@@ -619,8 +619,7 @@ q5_anchor_age<- q5_all %>%
 
 ```
 
-
-The values of `anchor_age` seem off because there is a significant peak of over 60,000 entries where the entered `anchor_age` for a patient was equal to 0. This is a sign that there might be anomalies in data collection or unclear coding of data from the hospital system's end (maybe the patient's age at admission was coded 0 for unknown or underage). 
+`anchor_age` is supposed to represent the age of the patient during the `anchor year` listed for that same patient. However, the values of `anchor_age` seem off because there is a significant peak of over 60,000 entries where the entered `anchor_age` for a patient was equal to 0. This is a sign that there might be anomalies in data collection or unclear coding of data from the hospital system's end (maybe the patient's age at admission was coded 0 for unknown or underage). 
 
 ```{r Q5 Graphs, echo = F, fig.align = 'center'}
 
@@ -673,8 +672,8 @@ close(con)
 if(!file.exists("labevents_icustays.csv.gz")){
  system.time(labevents <- 
         fread(str_c(mimic_path, "/hosp/labevents.csv.gz"),
-           select = c("subject_id", "hadm_id", "itemid", 
-                 "charttime", "valuenum"), 
+           select = c("subject_id", "hadm_id", "stay_id", 
+                      "itemid", "charttime", "valuenum"), 
            nThread = 4))
  labevents %>%
   semi_join(icustays, by = c("subject_id", "hadm_id")) %>%
@@ -719,10 +718,16 @@ We are interested in the vitals for ICU patients: heart rate, mean and systolic 
 
 `d_items.csv.gz` (<https://mimic-iv.mit.edu/docs/datasets/icu/d_items/>) is the dictionary for the `ITEMID` in `CHARTEVENTS.csv`. Find potential values of `ITEMID` that correspond to systolic blood pressure, i.e., `LABEL` contains the string `systolic`. 
 
+There are over 327 million rows in `chartevents.csv.gz`.
+```{r}
+system(str_c("zcat < ", shQuote(str_c(mimic_path, "/icu/chartevents.csv.gz")), 
+             " | wc -l"), intern = T)
+```
+
 **Solution**:
 
+This did not work because the file is too large.
 ```{r Q7 reading in chartevents, eval = F}
-
 
 if(!file.exists("chartevents_icustays.csv.gz")){
  system.time(chartevents <- 
@@ -731,13 +736,41 @@ if(!file.exists("chartevents_icustays.csv.gz")){
                  "charttime", "valuenum"), 
            nThread = 4))
  chartevents %>%
-  semi_join(icustays, by = c("subject_id", "hadm_id")) %>%
+  semi_join(icustays, by = c("subject_id", "hadm_id", "stay_id")) %>%
   fwrite("chartevents_icustays.csv.gz", nThread = 4)
 }
 system.time(chartevents <- fread("chartevents_icustays.csv.gz"))
 chartevents %>%
  as_tibble() %>%
  print(width = Inf)
+
+chartevents_filtered_path <- paste0("/usr/203b-data/mimic-iv-derived-data/",
+                              "chartevents_filtered_itemid.csv.gz")
+
+```
+```{bash}
+# reproducible code for turning in the assignment
+zcat < "/usr/203b-data/mimic-iv/icu/chartevents.csv.gz" | 
+  awk -F, '{if ($6 == 220045 || $6 == 220050 || $6 == 220052 || 
+  $6 == 220179 || $6 == 220181 || $6 == 220210 || $6 == 223761 || $6 == 220277) 
+  print $1, $2, $3, $4, $6, $8} {OFS = ","}' | gzip > q7chartevents.csv.gz
+
+```
+
+```{bash, eval = F}
+
+# I ran this locally to download data to my own machine:
+scp -r lchen121@server.ucla-biostat-203b.com:/usr/203b-data/mimic-iv-derived-data d/
+
+# I decided to do my own filtering on my local machine using the shell command:
+zcat < "/d/mimic-iv-0.4/mimic-iv-0.4/icu/chartevents.csv.gz" | 
+  awk -F, '{if ($6 == 220045 || $6 == 220050 || $6 == 220052 || 
+  $6 == 220179 || $6 == 220181 || $6 == 220210 || $6 == 223761 || $6 == 220277) 
+  print $1, $2, $3, $4, $6, $8} {OFS = ","}' | gzip > q7chartevents.csv.gz
+
+# To transfer my filtered chart events back to the teaching server:
+# scp filename username@server.ucla-biostat-203b.com:fullpathtohwfolder
+scp q7chartevents.csv.gz lchen121@server.ucla-biostat-203b.com:/home/lchen121/biostat-203b-2021-winter/hw2/
 
 ```
 
@@ -755,25 +788,25 @@ close(con)
 
 # mean bp (invasive and noninvasive measurements combined) 
 # (220052 Arterial Blood Pressure mean) 
-# (220061 Pulmonary Artery Pressure mean) 
 # (220181 Non Invasive Blood Pressure mean)
 
 # systolic bp (invasive and noninvasive measurements combined) 
 # (220050 Arterial Blood Pressure systolic)
-# (220059 Pulmonary Artery Pressure systolic)
 # (220179 Non Invasive Blood Pressure systolic) 
 
-# body temperature 
+# body temperature (choose only one since we are doing linear regression)
 # (223761 Temperature Fahrenheit) 
-# (223762 Temperature Celsius)
 
-# SpO2 (220277 O2 saturation pulseoxymetry)
+# SpO2 (229862 Forehead SpO2 Sensor In Place) - what Dr. Zhou used
+#      220277 O2 saturation pulseoxymetry - what I used 
 
 # respiratory rate (220210 Respiratory Rate)
 
-q7 <- chartevents %>% 
-   filter(itemid %in% c(220045, 220052, 220061, 220181, 220050, 
-                        220059, 220179, 223761, 223762, 220277, 220210))
+v_chartevents <- c(220045, 220052, 220181, 220050, 220179, 
+            223761, 223761, 229862, 220210)
+
+q7 <- chartevents_filtered_itemid %>% 
+   filter(itemid %in% v_chartevents)
 
 head(q7, n=20L)
 
@@ -821,7 +854,8 @@ q8 <- icustays %>%
   # merge firstvitals data
   left_join(firstvitals, by= "subject_id", "hadm_id") %>%
   # create indicator variable whether pt died within 30 days of admittime
-  mutate(binary_death30 = if_else((!is.na(deathtime) 
+  # deathtime missing for some hospital_expire_flag = 1, use dischargetime instead of deathtime
+  mutate(binary_death30 = if_else((hospital_expire_flag == 1 
                           & (difftime(deathtime, admittime, units="days") > 0) 
                           & (difftime(deathtime, admittime, units="days") < 30))
                           , 1, 0)) %>% 

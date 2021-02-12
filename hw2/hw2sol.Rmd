@@ -770,8 +770,7 @@ system(str_c("zcat < ", shQuote(str_c(mimic_path, "/icu/chartevents.csv.gz")),
 ```
 
 
-#change
-```{bash, eval = F}
+```{bash}
 # reproducible code for turning in the assignment
 zcat < "/usr/203b-data/mimic-iv/icu/chartevents.csv.gz" | 
   awk -F, '{if ($6 == 220045 || $6 == 220050 || $6 == 220052 || 
@@ -891,7 +890,8 @@ rm(list = ls(pattern = "count"))
 
 ```
 
-The final merged table is labeled as `q8full` and contains all desired variables from `admissions`, `icustays`, `patients`, `labevents`, `chartevents`
+The final merged table is labeled as `q8full` and contains all desired variables from `admissions`, `icustays`, `patients`, `labevents`, `chartevents`.
+
 ```{r Q8}
 
 icustays_unique <- icustays %>% 

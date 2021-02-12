@@ -23,13 +23,19 @@ library(data.table)
 library(lubridate)
 ```
 
-```{r path setup}
+#change
+```{r path setup, eval = F}
 os <- sessionInfo()$running
 if (str_detect(os, "Linux")) {
   mimic_path <- "/usr/203b-data/mimic-iv"
 } else if (str_detect(os, "macOS")) {
   mimic_path <- "/Users/huazhou/Documents/Box Sync/MIMIC/mimic-iv-0.4"
 }
+```
+
+
+```{r mimicpath on Lils laptop, include = F, eval = T}
+mimic_path <- "D:/mimic-iv-0.4/mimic-iv-0.4"
 ```
 
 
@@ -233,7 +239,8 @@ Information of the patients admitted into hospital is available in `ADMISSION.cs
 Note it is possible that one patient (uniquely identified by the `SUBJECT_ID`) is admitted into hospital multiple times. When summarizing some demographic information, it makes sense to summarize based on unique patients. 
 
 **Solution**:
-Demographics (insurance, language, marital status, ethnicity) were summarized based on unique patients since these are usually consistent over time. Death was described using `hospital_expire_flag`, which is recorded per hospital stay, so all `admission` data was used to describe death.
+
+Demographics (insurance, language, marital status, ethnicity) were summarized based on unique patients since these are usually consistent over time. Death was described using `hospital_expire_flag`, which is recorded per hospital stay, so only unique `subject_id` within `admission` data was used to describe death.
 
 ```{r Q4 Cleaning/Analysis, include = F, eval = T}
 
@@ -372,7 +379,7 @@ values_eth <- t(q4.unique_eth$ethnicity)
 
 # summarizing death (using hospital_expire_flag)
 q4.all_death <- q4.all %>% 
-  select(subject_id, deathtime, hospital_expire_flag) %>%
+  select(subject_id, dischtime, hospital_expire_flag) %>%
   group_by(subject_id) %>% 
   slice_max(hospital_expire_flag) %>% 
   distinct(subject_id, .keep_all = T) %>% 
@@ -384,17 +391,18 @@ count_death <- t(q4.all_death$n)
 values_death <- t(q4.all_death$hospital_expire_flag)
 
 ```
-
-
+For admission year, there is a steep increase in admissions starting around 2115 and number of admissions stay consistently high from 2130-2185, from where it begins to drop off steeply. The distribution is slightly positively skewed.
 ```{r Q4 Graphs, echo = F, fig.align = 'center'}
-
 # admityear
 ggplot(data = q4.all, mapping = aes(admityear)) +
   geom_histogram(binwidth = 3, col = "gray40", fill = "gray90") +
   theme_minimal() +
   labs(x = "Year", y = "Number of Admissions",
        title = "Number of Admissions by Year")
+```
 
+Admissions per month seem to follow the pattern of having more admissions in months that are longer (Jan, March, May, July, August, October, December all have 31 days); there is a noticeable drop in admissions for February, which has 28 (sometimes 29) days in its month. There were the highest number of admissions in August and the lowest number of admissions in February.
+```{r Q4 Graphs, echo = F, fig.align = 'center'}
 # admitmonth
 ggplot(data = q4.all_admitmonth, mapping = aes(x = admitmonth, y = n)) +
   geom_point(stat = "identity") +
@@ -407,14 +415,20 @@ ggplot(data = q4.all_admitmonth, mapping = aes(x = admitmonth, y = n)) +
                               "Sept.", "Oct.", "Nov.", "Dec.")) +
   labs(x = "Month", y = "Number of Admissions",
        title = "Number of Admissions by Month")
+```
+The number of admissions by day of the month is consistently high for calendar days 1-28, which makes sense since all months have at least 28 days. The numbers start dropping off as more months don't contain that day in their respective months.
 
+```{r Q4 Graphs, echo = F, fig.align = 'center'}
 # admitmonthday
 ggplot(data = q4.all_admitmonthday, mapping = aes(x = admitmonthday, y = n)) +
   geom_point(stat = "identity") +
   theme_minimal() +
   labs(x = "Day of the Month", y = "Number of Admissions",
        title = "Number of Admissions by Day of the Month")
+```
+Admissions seem to be higher on the weekends, with the highest number of admissions being on Saturday and the second highest number of admissions being on Sunday. Weekdays have comparatively lower numbers of admissions.
 
+```{r Q4 Graphs, echo = F, fig.align = 'center'}
 # admitwday
 ggplot(data = q4.all_admitwday, mapping = aes(x = admitwday, y = n)) +
   geom_point(stat = "identity") +
@@ -426,21 +440,30 @@ ggplot(data = q4.all_admitwday, mapping = aes(x = admitwday, y = n)) +
                               "Wednesday", "Thursday", "Friday", "Saturday")) +
   labs(x = "Weekday", y = "Number of Admissions",
        title = "Number of Admissions by Weekday")
+```
+There seems to be a trend of having less admissions during the early morning hours, and admissions slowly increase from 9am and stays consistently high until the later hours of the day. There is an unusual peak at 0 hours recorded (midnight) that looks very different from the overall distribution -- this could be attributed to not recording the time of admission and arbitrarily assigning a midnight admission time to some patients.
 
+```{r Q4 Graphs, echo = F, fig.align = 'center'}
 # admithour
 ggplot(data = q4.all, mapping = aes(admithour)) +
   geom_histogram(bins=24, col = "gray40", fill = "gray90") +
   theme_minimal() +
   labs(x = "Hour", y = "Number of Admissions",
        title = "Number of Admissions by Hour of Day (Military Time)")
+```
+The number of deaths by year has a slight positive skew in its distribution. There is a steep increase prior to 2130, and from 2130 to 2185 the deaths stay consistently high until the deaths start dropping off slowly. This mirrors the distribution for admission year, so it seems like the number of deaths by year seems to reflect similar proportions to number of admissions by year.
 
+```{r Q4 Graphs, echo = F, fig.align = 'center'}
 # deathyear
 ggplot(data = q4.all, mapping = aes(admityear)) +
   geom_histogram(binwidth = 3, col = "gray40", fill = "gray90") +
   theme_minimal() +
   labs(x = "Year", y = "Number of Deaths",
        title = "Number of Deaths by Year")
+```
+The most frequent type of admission was EW EMER. (158,032), and the least frequent type of admission was AMBULATORY OBSERVATION (7,259).
 
+```{r Q4 Graphs, echo = F, fig.align = 'center'}
 # admission_type
 ggplot(data = q4.all, mapping = aes(admission_type)) +
   geom_bar(aes(fill = admission_type)) +
@@ -455,7 +478,10 @@ ggplot(data = q4.all, mapping = aes(admission_type)) +
         legend.text = element_text(size = 7)) +
   labs(x = "Admissions Type", y = "Number of Admissions",
        title = "Number of Admissions by Type")
+```
+Most patients had only 1 admission, and anything past 2 admissions was considered an outlier. One patient had up to 238 admissions. The graph is extremely right skewed since most patients were in the hospital less than 2 times, as can be seen in the summary statistics produced.
 
+```{r Q4 Graphs, echo = F, fig.align = 'center'}
 # number of admissions per patient
 print("Summary of Number of Admissions per Patient")
 summary(q4.all_admitsperpt$n)
@@ -464,16 +490,11 @@ ggplot(data = q4.all_admitsperpt, mapping = aes(n)) +
   theme_minimal() +
   labs(x = "Number of Admissions", y = "Number of Patients",
        title = "Number of Admissions Associated with Unique Patients")
+```
 
-# number of admissions per patient using x log scale
-ggplot(data = q4.all_admitsperpt, mapping = aes(n)) + 
-  geom_histogram(bins = 50, col = "gray40", fill = "gray90") +
-  scale_y_log10()+
-  theme_minimal() +
-  labs(x = "Number of Admissions", y = "Number of Patients [log (count)]", 
-       title = "Histogram of Number of Admissions Associated 
-                with Log Number of Unique Patients")
+60,437 patients did not have data for their admission location. Of the patients that had data for their admission location, the most frequent admission location was the emergency room (246,241) and the least frequent was through ambulatory surgery transfer (191). Separate from the missing data for admission location, 379 patients had their admission data marked as `INFO NOT AVAILABLE`.
 
+```{r Q4 Graphs, echo = F, fig.align = 'center'}
 # admission location
 labs_alocation <- c("AMBULATORY SURGERY XFER", "CLINICAL REFERRAL", 
                     "EMERGENCY ROOM", "INFO NOT AVAILABLE", 
@@ -495,7 +516,10 @@ ggplot(data = q4.all, mapping = aes(admission_location)) +
         legend.text = element_text(size = 7)) + 
   labs(x = "Admission Location", y = "Count",
        title = "Admission Location")
+```
+127,183 patients did not have data for their discharge location. Of the admitted patients that had discharge location data, the most common discharge location for patients was at home (222,298) and the least common discharge location for patients was at a healthcare facility. The data marks 9,257 unique patients as having died.
 
+```{r Q4 Graphs, echo = F, fig.align = 'center'}
 # discharge location
 ggplot(data = q4.all, mapping = aes(discharge_location)) +
   geom_bar(aes(fill = discharge_location)) +
@@ -508,7 +532,10 @@ ggplot(data = q4.all, mapping = aes(discharge_location)) +
         legend.position = "none") + 
   labs(x = "Discharge Location", y = "Count",
        title = "Discharge Location")
+```
+The insurance data at this hospital were coded as three different categories: `Medicaid`, `Medicare`, or `Other`. `Medicaid` was the least common insurance type (22,809), `Medicare` was the 2nd least common (60,221), and `Other` was the most common insurance type (174,336).
 
+```{r Q4 Graphs, echo = F, fig.align = 'center'}
 # insurance
 ggplot(data = q4.unique, mapping = aes(insurance)) +
   geom_bar(aes(fill = insurance)) +
@@ -520,7 +547,10 @@ ggplot(data = q4.unique, mapping = aes(insurance)) +
   theme(legend.position = "right") + 
   labs(x = "Insurance", y = "Count",
        title = "Insurance Types of Admitted Patients")
+```
+The data for language was only recorded as two values: `English` or `?`, which is not extremely informative. Of the unique admitted patients, 238,387 patients were marked as English-speaking and 18,979 were marked with `?`.
 
+```{r Q4 Graphs, echo = F, fig.align = 'center'}
 # language
 ggplot(data = q4.unique, mapping = aes(language)) +
   geom_bar(aes(fill = language)) +
@@ -532,7 +562,10 @@ ggplot(data = q4.unique, mapping = aes(language)) +
   theme(legend.position = "none") + 
   labs(x = "Language", y = "Count",
        title = "Languages of Admitted Patients")
+```
 
+Marital status data was unavailable for 63,866 of the unique admitted patients. Of the data that were available, the majority of patients identified as either married (84,946) or single (78,458). Patients that identified as divorced were least frequent, with only 12,259 patients identifying as such.
+```{r Q4 Graphs, echo = F, fig.align = 'center'}
 # marital status
 ggplot(data = q4.unique, mapping = aes(marital_status)) +
   geom_bar(aes(fill = marital_status)) +
@@ -543,7 +576,10 @@ ggplot(data = q4.unique, mapping = aes(marital_status)) +
   theme(legend.position = "right") + 
   labs(x = "Marital Status", y = "Count",
        title = "Marital Statuses of Admitted Patients")
+```
 
+The majority of the unique admitted patients at this hospital identified as being white (159,642). There were 3,132 patients whose ethnicities were unable to be obtained, and 16,593 patients whose ethnicity was unknown. Olny 951 of admitted patients identified as American Indian/Alaska Native, the smallest category of all ethnicity categories.
+```{r Q4 Graphs, echo = F, fig.align = 'center'}
 # ethnicity
 labs_ethnicity <- c("AI/AN", "ASIAN", "BLACK/AA", 
                     "HISPANIC/LATINO", "OTHER", "UNABLE TO OBTAIN", 
@@ -561,7 +597,10 @@ ggplot(data = q4.unique, mapping = aes(ethnicity)) +
         legend.position = "right") + 
   labs(x = "Ethnicity", y = "Count",
        title = "Ethnicities of Admitted Patients")
+```
 
+For unique patients in the admissions data, 248,004 were alive as of their last discharge time and 9,362 were deceased as of their last discharge time.
+```{r Q4 Graphs, echo = F, fig.align = 'center'}
 # death
 ggplot(data = q4.all_death, mapping = aes(x = hospital_expire_flag, y = n)) +
   geom_col(aes(fill = as.character(hospital_expire_flag))) +
@@ -619,8 +658,9 @@ q5_anchor_age<- q5_all %>%
 
 ```
 
-`anchor_age` is supposed to represent the age of the patient during the `anchor year` listed for that same patient. However, the values of `anchor_age` seem off because there is a significant peak of over 60,000 entries where the entered `anchor_age` for a patient was equal to 0. This is a sign that there might be anomalies in data collection or unclear coding of data from the hospital system's end (maybe the patient's age at admission was coded 0 for unknown or underage). 
+More unique female patients (52.25%) were recorded than male patients (47.75%).
 
+`anchor_age` is supposed to represent the age of the patient during the `anchor_year` listed for that same patient. However, the values of `anchor_age` seem off because there is a significant peak of over 60,000 entries where the entered `anchor_age` for a patient was equal to 0. This is a sign that there might be anomalies in data collection or unclear coding of data from the hospital system's end (maybe the patient's age at admission was coded 0 for unknown or underage). 
 ```{r Q5 Graphs, echo = F, fig.align = 'center'}
 
 # gender
@@ -655,12 +695,13 @@ We are interested in the lab measurements of creatinine (50912), potassium (5097
 **Solution**:
 
 First take a look at first few lines of the `labevents.csv.gz`. `read_csv` doesn't work (memory issues) even with reading only selected columns.
-```{r}
+#change
+```{r, eval = F}
 system(str_c("zcat < ", shQuote(str_c(mimic_path, "/hosp/labevents.csv.gz")), 
              " | head"), intern = T)
 ```
 
-Reading data using data.table.
+Reading data using data.table. Since `labevents.csv.gz` is so large, only the relevant columns are chosen in order to read in the data. 
 ```{r Q6 reading in labevents}
 
 transactFile <- str_c(mimic_path,"/hosp/labevents.csv.gz")
@@ -672,7 +713,7 @@ close(con)
 if(!file.exists("labevents_icustays.csv.gz")){
  system.time(labevents <- 
         fread(str_c(mimic_path, "/hosp/labevents.csv.gz"),
-           select = c("subject_id", "hadm_id", "stay_id", 
+           select = c("subject_id", "hadm_id",
                       "itemid", "charttime", "valuenum"), 
            nThread = 4))
  labevents %>%
@@ -702,11 +743,13 @@ labevents %>%
 # calcium (50893)
 # lactate (50813)
 
+v_labevents <- c(50912, 50971, 50983, 50902, 50882, 51221, 
+                 51301, 50931, 50960, 50893, 50813)
 q6 <- labevents %>% 
-   filter(itemid %in% c(50912, 50971, 50983, 50902, 50882, 
-                        51221, 51301, 50931, 50960, 50893, 50813))
-
-head(q6, n=20L)
+  filter(itemid %in% v_labevents) %>% 
+  #force charttime to be datetime
+  mutate(charttime = ymd_hms(charttime)) %>% 
+  print(width = Inf)
 
 ```
 
@@ -718,23 +761,53 @@ We are interested in the vitals for ICU patients: heart rate, mean and systolic 
 
 `d_items.csv.gz` (<https://mimic-iv.mit.edu/docs/datasets/icu/d_items/>) is the dictionary for the `ITEMID` in `CHARTEVENTS.csv`. Find potential values of `ITEMID` that correspond to systolic blood pressure, i.e., `LABEL` contains the string `systolic`. 
 
-There are over 327 million rows in `chartevents.csv.gz`.
-```{r}
+**Solution**:
+
+There are over 327 million rows in `chartevents.csv.gz`. This was determined by running the following command in bash.
+```{bash, eval = F}
 system(str_c("zcat < ", shQuote(str_c(mimic_path, "/icu/chartevents.csv.gz")), 
              " | wc -l"), intern = T)
 ```
 
-**Solution**:
 
-This did not work because the file is too large.
-```{r Q7 reading in chartevents, eval = F}
+#change
+```{bash, eval = F}
+# reproducible code for turning in the assignment
+zcat < "/usr/203b-data/mimic-iv/icu/chartevents.csv.gz" | 
+  awk -F, '{if ($6 == 220045 || $6 == 220050 || $6 == 220052 || 
+  $6 == 220179 || $6 == 220181 || $6 == 220210 || $6 == 223761 || $6 == 220277) 
+  print $1, $2, $3, $4, $6, $8} {OFS = ","}' | gzip > q7chartevents.csv.gz
+
+```
+
+I ran the following code locally to download and filter the dataset within Git Bash on my own WindowsOS machine:
+```{bash, eval = F}
+
+# downloading data to my own machine:
+scp -r lchen121@server.ucla-biostat-203b.com:/usr/203b-data/mimic-iv-derived-data d/
+
+# filtering on my local machine using the shell command:
+zcat < "/d/mimic-iv-0.4/mimic-iv-0.4/icu/chartevents.csv.gz" | 
+  awk -F, '{if ($6 == 220045 || $6 == 220050 || $6 == 220052 || 
+  $6 == 220179 || $6 == 220181 || $6 == 220210 || $6 == 223761 || $6 == 220277) 
+  print $1, $2, $3, $4, $6, $8} {OFS = ","}' | gzip > q7chartevents.csv.gz
+
+# transferring my filtered chart events back to the teaching server
+# scp filename username@server.ucla-biostat-203b.com:fullpathtohwfolder
+scp q7chartevents.csv.gz lchen121@server.ucla-biostat-203b.com:
+/home/lchen121/biostat-203b-2021-winter/hw2/
+
+```
+
+
+```{r Q7 reading in chartevents filtered}
 
 if(!file.exists("chartevents_icustays.csv.gz")){
  system.time(chartevents <- 
-        fread(str_c(mimic_path, "/icu/chartevents.csv.gz"),
-           select = c("subject_id", "hadm_id", "itemid", 
-                 "charttime", "valuenum"), 
+        fread(str_c(mimic_path, "/icu/q7chartevents.csv.gz"),
            nThread = 4))
+ names(chartevents) <- c("subject_id", "hadm_id", "stay_id", 
+                         "charttime", "itemid", "valuenum")
  chartevents %>%
   semi_join(icustays, by = c("subject_id", "hadm_id", "stay_id")) %>%
   fwrite("chartevents_icustays.csv.gz", nThread = 4)
@@ -744,37 +817,10 @@ chartevents %>%
  as_tibble() %>%
  print(width = Inf)
 
-chartevents_filtered_path <- paste0("/usr/203b-data/mimic-iv-derived-data/",
-                              "chartevents_filtered_itemid.csv.gz")
-
-```
-```{bash}
-# reproducible code for turning in the assignment
-zcat < "/usr/203b-data/mimic-iv/icu/chartevents.csv.gz" | 
-  awk -F, '{if ($6 == 220045 || $6 == 220050 || $6 == 220052 || 
-  $6 == 220179 || $6 == 220181 || $6 == 220210 || $6 == 223761 || $6 == 220277) 
-  print $1, $2, $3, $4, $6, $8} {OFS = ","}' | gzip > q7chartevents.csv.gz
-
-```
-
-```{bash, eval = F}
-
-# I ran this locally to download data to my own machine:
-scp -r lchen121@server.ucla-biostat-203b.com:/usr/203b-data/mimic-iv-derived-data d/
-
-# I decided to do my own filtering on my local machine using the shell command:
-zcat < "/d/mimic-iv-0.4/mimic-iv-0.4/icu/chartevents.csv.gz" | 
-  awk -F, '{if ($6 == 220045 || $6 == 220050 || $6 == 220052 || 
-  $6 == 220179 || $6 == 220181 || $6 == 220210 || $6 == 223761 || $6 == 220277) 
-  print $1, $2, $3, $4, $6, $8} {OFS = ","}' | gzip > q7chartevents.csv.gz
-
-# To transfer my filtered chart events back to the teaching server:
-# scp filename username@server.ucla-biostat-203b.com:fullpathtohwfolder
-scp q7chartevents.csv.gz lchen121@server.ucla-biostat-203b.com:/home/lchen121/biostat-203b-2021-winter/hw2/
-
 ```
 
 
+I ran a chunk of 2000 lines to see if I could find all the requested vitals within this initial chunk. Looking through the item dictionary for `chartevents.csv.gz`, 8 different itemids were identified as the requested vitals to keep from this dataset.
 ```{r Q7, eval = F}
 
 transactFile <- str_c(mimic_path,"/icu/d_items.csv.gz")
@@ -797,19 +843,24 @@ close(con)
 # body temperature (choose only one since we are doing linear regression)
 # (223761 Temperature Fahrenheit) 
 
-# SpO2 (229862 Forehead SpO2 Sensor In Place) - what Dr. Zhou used
-#      220277 O2 saturation pulseoxymetry - what I used 
+# SpO2 [(229862 Forehead SpO2 Sensor In Place) - what Dr. Zhou used]
+# (220277 O2 saturation pulseoxymetry) - what I used
 
-# respiratory rate (220210 Respiratory Rate)
+# respiratory rate 
+# (220210 Respiratory Rate)
 
-v_chartevents <- c(220045, 220052, 220181, 220050, 220179, 
-            223761, 223761, 229862, 220210)
+v_chartevents <- c(220045, 220052, 220181, 220050, 
+                   220179, 223761, 229862, 220210)
 
-q7 <- chartevents_filtered_itemid %>% 
-   filter(itemid %in% v_chartevents)
+# chartevents already has the itemids listed in v_chartevents, so the vector
+# will not be used
 
-head(q7, n=20L)
-
+q7 <- chartevents %>% 
+  as_tibble() %>% 
+  #force charttime to be datetime
+  mutate(charttime = ymd_hms(charttime)) %>% 
+  print(width = Inf)
+  
 ```
 
 
@@ -830,17 +881,20 @@ and columns contains at least following variables
 - first vitals measurement during ICU stay  
 - an indicator variable whether the patient died within 30 days of hospital admission  #30 day mortality Y/N variable
 
-```{r Q8, eval = F}
+**Solution**:
 
-firstlab <- q6 %>%
-  group_by(subject_id, hadm_id) %>% 
-  slice_min(charttime)
+First, remove excess variables from the global environment to ease memory:
+```{r}
+rm(list = ls(pattern = "q4"))
+rm(list = ls(pattern = "values"))
+rm(list = ls(pattern = "count"))
 
-firstvitals <- q7 %>%
-  group_by(subject_id, hadm_id) %>% 
-  slice_min(charttime)
+```
 
-q8 <- icustays %>% 
+The final merged table is labeled as `q8full` and contains all desired variables from `admissions`, `icustays`, `patients`, `labevents`, `chartevents`
+```{r Q8}
+
+icustays_unique <- icustays %>% 
   group_by(subject_id) %>% 
   slice_min(intime) %>% 
   # merge admissions data
@@ -848,17 +902,83 @@ q8 <- icustays %>%
   # merge patients data
   left_join(patients, by = "subject_id") %>% 
   mutate(admitage = year(admittime) - anchor_year + anchor_age) %>% 
-  filter(admitage >= 18) %>%
-  # merge firstlab data
-  left_join(firstlab, by= "subject_id", "hadm_id") %>%
-  # merge firstvitals data
-  left_join(firstvitals, by= "subject_id", "hadm_id") %>%
-  # create indicator variable whether pt died within 30 days of admittime
-  # deathtime missing for some hospital_expire_flag = 1, use dischargetime instead of deathtime
-  mutate(binary_death30 = if_else((hospital_expire_flag == 1 
-                          & (difftime(deathtime, admittime, units="days") > 0) 
-                          & (difftime(deathtime, admittime, units="days") < 30))
-                          , 1, 0)) %>% 
+  filter(admitage >= 18) %>% 
   print(width = Inf)
+
+
+q8labs <- q6 %>% 
+  # only keep subject_id+hadm_id that are in icustays_unique
+  semi_join(icustays_unique, by = c("subject_id", "hadm_id")) %>% 
+ # pull in the intime of the specific icu stay
+ left_join(select(icustays_unique, subject_id, hadm_id, intime),
+           by = c("subject_id", "hadm_id")) %>% 
+  # only keep lab items after ICU intime
+  filter(charttime >= intime) %>% 
+  # group by itemid
+  group_by(subject_id, itemid) %>% 
+  # only keep first charttime for each item in each subject_id
+  arrange(charttime, .by_group = T) %>% 
+  slice_head(n = 1) %>% 
+  # remove charttime and intime
+  select(-charttime, -intime) %>% 
+  spread(key = itemid, value = valuenum) %>% 
+  print(width = Inf)
+
+
+q8vitals <- q7 %>% 
+  # only keep subject_id+hadm_id+stay_id from icustays_unique
+  semi_join(icustays_unique, by = c("subject_id", "hadm_id", "stay_id")) %>% 
+  # pull in the intime of the specific icu stay
+  left_join(select(icustays_unique, subject_id, hadm_id, intime),
+            by = c("subject_id", "hadm_id")) %>% 
+  # only keep lab items after ICU intime
+  filter(charttime >= intime) %>% 
+  # group by itemid
+  group_by(subject_id, itemid) %>% 
+  # only keep first charttime for each item in each subject_id
+  arrange(charttime, .by_group = T) %>% 
+  slice_head(n = 1) %>% 
+  # remove charttime and intime
+  select(-charttime, -intime) %>% 
+  spread(key = itemid, value = valuenum) %>% 
+  # there are some duplicate measurements for some reason even though we sliced
+  distinct(subject_id, .keep_all = T) %>% 
+  print(width = Inf)
+
+q8oldnames <- c(names(q8vitals), names(q8labs)[-(1:2)], 
+            "dischtime", "admittime", "hospital_expire_flag", "binary_death30")
+
+q8names <- c("subject_id", "hadm_id", "stay_id", "Heart Rate (bpm)", 
+             "Arterial Blood Pressure systolic (mmHg)", 
+             "Arterial Blood Pressure mean (mmHg)", 
+             "Non Invasive Blood Pressure systolic (mmHg)", 
+             "Non Invasive Blood Pressure mean (mmHg)",     
+             "Respiratory Rate (insp/min)", 
+             "O2 saturation pulseoxymetry (%)", 
+             "Temperature Fahrenheit (F)", 
+             "Lactate", "Bicarbonate", "Calcium", 
+             "Chloride", "Creatinine", "Glucose",
+             "Magnesium", "Potassium", "Sodium", 
+             "Hematocrit", "White Blood Cell Count", 
+             "dischtime", "admittime", "hospital_expire_flag", "binary_death30")
+
+
+q8full <- q8vitals %>% 
+  # join labevents data
+  left_join(q8labs, by = c("subject_id", "hadm_id")) %>%
+  # add in all of the unique data from admissions/icustays/patients
+  left_join(select(icustays_unique, dischtime, subject_id, hadm_id, stay_id,
+                   admittime, hospital_expire_flag), 
+            by = c("subject_id", "hadm_id", "stay_id")) %>% 
+  # create indicator variable whether pt died within 30 days of admittime
+  # deathtime missing for some hospital_expire_flag = 1, use dischtime instead
+  mutate(binary_death30 = if_else((hospital_expire_flag == 1 
+                      & (difftime(dischtime, admittime, units="days") > 0) 
+                      & (difftime(dischtime, admittime, units="days") < 30))
+                      , 1, 0)) %>% 
+  # rename columns to descriptive names
+  rename_at(vars(as.character(q8oldnames)), ~q8names) %>% 
+  print(width = Inf)
+  
 
 ```

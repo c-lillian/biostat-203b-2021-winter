@@ -24,7 +24,7 @@ library(lubridate)
 ```
 
 #change
-```{r path setup, eval = F}
+```{r path setup}
 os <- sessionInfo()$running
 if (str_detect(os, "Linux")) {
   mimic_path <- "/usr/203b-data/mimic-iv"
@@ -34,7 +34,7 @@ if (str_detect(os, "Linux")) {
 ```
 
 
-```{r mimicpath on Lils laptop, include = F, eval = T}
+```{r mimicpath on Lils laptop, include = F, eval = F}
 mimic_path <- "D:/mimic-iv-0.4/mimic-iv-0.4"
 ```
 
@@ -392,7 +392,7 @@ values_death <- t(q4.all_death$hospital_expire_flag)
 
 ```
 For admission year, there is a steep increase in admissions starting around 2115 and number of admissions stay consistently high from 2130-2185, from where it begins to drop off steeply. The distribution is slightly positively skewed.
-```{r Q4 Graphs, echo = F, fig.align = 'center'}
+```{r Q4 Graphs admityear, echo = F, fig.align = 'center'}
 # admityear
 ggplot(data = q4.all, mapping = aes(admityear)) +
   geom_histogram(binwidth = 3, col = "gray40", fill = "gray90") +
@@ -402,7 +402,7 @@ ggplot(data = q4.all, mapping = aes(admityear)) +
 ```
 
 Admissions per month seem to follow the pattern of having more admissions in months that are longer (Jan, March, May, July, August, October, December all have 31 days); there is a noticeable drop in admissions for February, which has 28 (sometimes 29) days in its month. There were the highest number of admissions in August and the lowest number of admissions in February.
-```{r Q4 Graphs, echo = F, fig.align = 'center'}
+```{r Q4 Graphs admitmonth, echo = F, fig.align = 'center'}
 # admitmonth
 ggplot(data = q4.all_admitmonth, mapping = aes(x = admitmonth, y = n)) +
   geom_point(stat = "identity") +
@@ -418,7 +418,7 @@ ggplot(data = q4.all_admitmonth, mapping = aes(x = admitmonth, y = n)) +
 ```
 The number of admissions by day of the month is consistently high for calendar days 1-28, which makes sense since all months have at least 28 days. The numbers start dropping off as more months don't contain that day in their respective months.
 
-```{r Q4 Graphs, echo = F, fig.align = 'center'}
+```{r Q4 Graphs admitmonthday, echo = F, fig.align = 'center'}
 # admitmonthday
 ggplot(data = q4.all_admitmonthday, mapping = aes(x = admitmonthday, y = n)) +
   geom_point(stat = "identity") +
@@ -428,7 +428,7 @@ ggplot(data = q4.all_admitmonthday, mapping = aes(x = admitmonthday, y = n)) +
 ```
 Admissions seem to be higher on the weekends, with the highest number of admissions being on Saturday and the second highest number of admissions being on Sunday. Weekdays have comparatively lower numbers of admissions.
 
-```{r Q4 Graphs, echo = F, fig.align = 'center'}
+```{r Q4 Graphs admitwday, echo = F, fig.align = 'center'}
 # admitwday
 ggplot(data = q4.all_admitwday, mapping = aes(x = admitwday, y = n)) +
   geom_point(stat = "identity") +
@@ -443,7 +443,7 @@ ggplot(data = q4.all_admitwday, mapping = aes(x = admitwday, y = n)) +
 ```
 There seems to be a trend of having less admissions during the early morning hours, and admissions slowly increase from 9am and stays consistently high until the later hours of the day. There is an unusual peak at 0 hours recorded (midnight) that looks very different from the overall distribution -- this could be attributed to not recording the time of admission and arbitrarily assigning a midnight admission time to some patients.
 
-```{r Q4 Graphs, echo = F, fig.align = 'center'}
+```{r Q4 Graphs admithour, echo = F, fig.align = 'center'}
 # admithour
 ggplot(data = q4.all, mapping = aes(admithour)) +
   geom_histogram(bins=24, col = "gray40", fill = "gray90") +
@@ -453,7 +453,7 @@ ggplot(data = q4.all, mapping = aes(admithour)) +
 ```
 The number of deaths by year has a slight positive skew in its distribution. There is a steep increase prior to 2130, and from 2130 to 2185 the deaths stay consistently high until the deaths start dropping off slowly. This mirrors the distribution for admission year, so it seems like the number of deaths by year seems to reflect similar proportions to number of admissions by year.
 
-```{r Q4 Graphs, echo = F, fig.align = 'center'}
+```{r Q4 Graphs deathyear, echo = F, fig.align = 'center'}
 # deathyear
 ggplot(data = q4.all, mapping = aes(admityear)) +
   geom_histogram(binwidth = 3, col = "gray40", fill = "gray90") +
@@ -463,7 +463,7 @@ ggplot(data = q4.all, mapping = aes(admityear)) +
 ```
 The most frequent type of admission was EW EMER. (158,032), and the least frequent type of admission was AMBULATORY OBSERVATION (7,259).
 
-```{r Q4 Graphs, echo = F, fig.align = 'center'}
+```{r Q4 Graphs admission_type, echo = F, fig.align = 'center'}
 # admission_type
 ggplot(data = q4.all, mapping = aes(admission_type)) +
   geom_bar(aes(fill = admission_type)) +
@@ -481,7 +481,7 @@ ggplot(data = q4.all, mapping = aes(admission_type)) +
 ```
 Most patients had only 1 admission, and anything past 2 admissions was considered an outlier. One patient had up to 238 admissions. The graph is extremely right skewed since most patients were in the hospital less than 2 times, as can be seen in the summary statistics produced.
 
-```{r Q4 Graphs, echo = F, fig.align = 'center'}
+```{r Q4 Graphs admissions per pt, echo = F, fig.align = 'center'}
 # number of admissions per patient
 print("Summary of Number of Admissions per Patient")
 summary(q4.all_admitsperpt$n)
@@ -494,7 +494,7 @@ ggplot(data = q4.all_admitsperpt, mapping = aes(n)) +
 
 60,437 patients did not have data for their admission location. Of the patients that had data for their admission location, the most frequent admission location was the emergency room (246,241) and the least frequent was through ambulatory surgery transfer (191). Separate from the missing data for admission location, 379 patients had their admission data marked as `INFO NOT AVAILABLE`.
 
-```{r Q4 Graphs, echo = F, fig.align = 'center'}
+```{r Q4 Graphs admission location, echo = F, fig.align = 'center'}
 # admission location
 labs_alocation <- c("AMBULATORY SURGERY XFER", "CLINICAL REFERRAL", 
                     "EMERGENCY ROOM", "INFO NOT AVAILABLE", 
@@ -519,7 +519,7 @@ ggplot(data = q4.all, mapping = aes(admission_location)) +
 ```
 127,183 patients did not have data for their discharge location. Of the admitted patients that had discharge location data, the most common discharge location for patients was at home (222,298) and the least common discharge location for patients was at a healthcare facility. The data marks 9,257 unique patients as having died.
 
-```{r Q4 Graphs, echo = F, fig.align = 'center'}
+```{r Q4 Graphs discharge location, echo = F, fig.align = 'center'}
 # discharge location
 ggplot(data = q4.all, mapping = aes(discharge_location)) +
   geom_bar(aes(fill = discharge_location)) +
@@ -535,7 +535,7 @@ ggplot(data = q4.all, mapping = aes(discharge_location)) +
 ```
 The insurance data at this hospital were coded as three different categories: `Medicaid`, `Medicare`, or `Other`. `Medicaid` was the least common insurance type (22,809), `Medicare` was the 2nd least common (60,221), and `Other` was the most common insurance type (174,336).
 
-```{r Q4 Graphs, echo = F, fig.align = 'center'}
+```{r Q4 Graphs insurance, echo = F, fig.align = 'center'}
 # insurance
 ggplot(data = q4.unique, mapping = aes(insurance)) +
   geom_bar(aes(fill = insurance)) +
@@ -550,7 +550,7 @@ ggplot(data = q4.unique, mapping = aes(insurance)) +
 ```
 The data for language was only recorded as two values: `English` or `?`, which is not extremely informative. Of the unique admitted patients, 238,387 patients were marked as English-speaking and 18,979 were marked with `?`.
 
-```{r Q4 Graphs, echo = F, fig.align = 'center'}
+```{r Q4 Graphs language, echo = F, fig.align = 'center'}
 # language
 ggplot(data = q4.unique, mapping = aes(language)) +
   geom_bar(aes(fill = language)) +
@@ -565,7 +565,7 @@ ggplot(data = q4.unique, mapping = aes(language)) +
 ```
 
 Marital status data was unavailable for 63,866 of the unique admitted patients. Of the data that were available, the majority of patients identified as either married (84,946) or single (78,458). Patients that identified as divorced were least frequent, with only 12,259 patients identifying as such.
-```{r Q4 Graphs, echo = F, fig.align = 'center'}
+```{r Q4 Graphs marital status, echo = F, fig.align = 'center'}
 # marital status
 ggplot(data = q4.unique, mapping = aes(marital_status)) +
   geom_bar(aes(fill = marital_status)) +
@@ -579,7 +579,7 @@ ggplot(data = q4.unique, mapping = aes(marital_status)) +
 ```
 
 The majority of the unique admitted patients at this hospital identified as being white (159,642). There were 3,132 patients whose ethnicities were unable to be obtained, and 16,593 patients whose ethnicity was unknown. Olny 951 of admitted patients identified as American Indian/Alaska Native, the smallest category of all ethnicity categories.
-```{r Q4 Graphs, echo = F, fig.align = 'center'}
+```{r Q4 Graphs ethnicity, echo = F, fig.align = 'center'}
 # ethnicity
 labs_ethnicity <- c("AI/AN", "ASIAN", "BLACK/AA", 
                     "HISPANIC/LATINO", "OTHER", "UNABLE TO OBTAIN", 
@@ -600,7 +600,7 @@ ggplot(data = q4.unique, mapping = aes(ethnicity)) +
 ```
 
 For unique patients in the admissions data, 248,004 were alive as of their last discharge time and 9,362 were deceased as of their last discharge time.
-```{r Q4 Graphs, echo = F, fig.align = 'center'}
+```{r Q4 Graphs death, echo = F, fig.align = 'center'}
 # death
 ggplot(data = q4.all_death, mapping = aes(x = hospital_expire_flag, y = n)) +
   geom_col(aes(fill = as.character(hospital_expire_flag))) +
@@ -695,7 +695,7 @@ We are interested in the lab measurements of creatinine (50912), potassium (5097
 **Solution**:
 
 First take a look at first few lines of the `labevents.csv.gz`. `read_csv` doesn't work (memory issues) even with reading only selected columns.
-#change
+
 ```{r, eval = F}
 system(str_c("zcat < ", shQuote(str_c(mimic_path, "/hosp/labevents.csv.gz")), 
              " | head"), intern = T)
@@ -703,12 +703,6 @@ system(str_c("zcat < ", shQuote(str_c(mimic_path, "/hosp/labevents.csv.gz")),
 
 Reading data using data.table. Since `labevents.csv.gz` is so large, only the relevant columns are chosen in order to read in the data. 
 ```{r Q6 reading in labevents}
-
-transactFile <- str_c(mimic_path,"/hosp/labevents.csv.gz")
-chunkSize <- 1000
-con <- file(description= transactFile, open="r")
-data <- read.table(con, nrows=chunkSize, header=T, fill=TRUE, sep=",")
-close(con)
 
 if(!file.exists("labevents_icustays.csv.gz")){
  system.time(labevents <- 
@@ -720,10 +714,7 @@ if(!file.exists("labevents_icustays.csv.gz")){
   semi_join(icustays, by = c("subject_id", "hadm_id")) %>%
   fwrite("labevents_icustays.csv.gz", nThread = 4)
 }
-system.time(labevents <- fread("labevents_icustays.csv.gz"))
-labevents %>%
- as_tibble() %>%
- print(width = Inf)
+labevents <- fread("labevents_icustays.csv.gz")
 
 ```
 
@@ -745,11 +736,13 @@ labevents %>%
 
 v_labevents <- c(50912, 50971, 50983, 50902, 50882, 51221, 
                  51301, 50931, 50960, 50893, 50813)
+
 q6 <- labevents %>% 
   filter(itemid %in% v_labevents) %>% 
   #force charttime to be datetime
-  mutate(charttime = ymd_hms(charttime)) %>% 
-  print(width = Inf)
+  mutate(charttime = ymd_hms(charttime))
+
+head(q6, n = 10L)
 
 ```
 
@@ -811,22 +804,19 @@ if(!file.exists("chartevents_icustays.csv.gz")){
   semi_join(icustays, by = c("subject_id", "hadm_id", "stay_id")) %>%
   fwrite("chartevents_icustays.csv.gz", nThread = 4)
 }
-system.time(chartevents <- fread("chartevents_icustays.csv.gz"))
-chartevents %>%
- as_tibble() %>%
- print(width = Inf)
+chartevents <- fread("chartevents_icustays.csv.gz")
 
 ```
 
 
 I ran a chunk of 2000 lines to see if I could find all the requested vitals within this initial chunk. Looking through the item dictionary for `chartevents.csv.gz`, 8 different itemids were identified as the requested vitals to keep from this dataset.
-```{r Q7, eval = F}
+```{r Q7}
 
-transactFile <- str_c(mimic_path,"/icu/d_items.csv.gz")
-chunkSize <- 2000
-con <- file(description= transactFile, open="r")
-data <- read.table(con, nrows=chunkSize, header=T, fill=TRUE, sep=",")
-close(con)
+# transactFile <- str_c(mimic_path,"/icu/d_items.csv.gz")
+# chunkSize <- 2000
+# con <- file(description= transactFile, open="r")
+# data <- read.table(con, nrows=chunkSize, header=T, fill=TRUE, sep=",")
+# close(con)
 
 # CHART EVENT (ITEMID LABEL)
 # heart rate (220045 Heart Rate)
@@ -857,8 +847,9 @@ v_chartevents <- c(220045, 220052, 220181, 220050,
 q7 <- chartevents %>% 
   as_tibble() %>% 
   #force charttime to be datetime
-  mutate(charttime = ymd_hms(charttime)) %>% 
-  print(width = Inf)
+  mutate(charttime = ymd_hms(charttime))
+
+head(q7, n= 10L)
   
 ```
 
@@ -884,6 +875,8 @@ and columns contains at least following variables
 
 First, remove excess variables from the global environment to ease memory:
 ```{r}
+
+rm(list = ls(pattern = "q5"))
 rm(list = ls(pattern = "q4"))
 rm(list = ls(pattern = "values"))
 rm(list = ls(pattern = "count"))
@@ -892,8 +885,7 @@ rm(list = ls(pattern = "count"))
 
 The final merged table is labeled as `q8full` and contains all desired variables from `admissions`, `icustays`, `patients`, `labevents`, `chartevents`.
 
-```{r Q8}
-
+```{r Q8 icustays_unique}
 icustays_unique <- icustays %>% 
   group_by(subject_id) %>% 
   slice_min(intime) %>% 
@@ -902,9 +894,13 @@ icustays_unique <- icustays %>%
   # merge patients data
   left_join(patients, by = "subject_id") %>% 
   mutate(admitage = year(admittime) - anchor_year + anchor_age) %>% 
-  filter(admitage >= 18) %>% 
-  print(width = Inf)
+  filter(admitage >= 18)
 
+head(icustays_unique, n = 10L)
+```
+
+
+```{r Q8 q8labs}
 
 q8labs <- q6 %>% 
   # only keep subject_id+hadm_id that are in icustays_unique
@@ -921,9 +917,18 @@ q8labs <- q6 %>%
   slice_head(n = 1) %>% 
   # remove charttime and intime
   select(-charttime, -intime) %>% 
-  spread(key = itemid, value = valuenum) %>% 
-  print(width = Inf)
+  spread(key = itemid, value = valuenum)
+head(q8labs, n = 10L)
 
+```
+
+
+```{r Q8 q8vitals}
+
+# subsetting q7 to only have a chunk of 10million lines since I can't knit 
+# the homework with the full data set
+# q7 <- q7 %>% 
+#   slice(1:100000)
 
 q8vitals <- q7 %>% 
   # only keep subject_id+hadm_id+stay_id from icustays_unique
@@ -942,8 +947,16 @@ q8vitals <- q7 %>%
   select(-charttime, -intime) %>% 
   spread(key = itemid, value = valuenum) %>% 
   # there are some duplicate measurements for some reason even though we sliced
-  distinct(subject_id, .keep_all = T) %>% 
-  print(width = Inf)
+  distinct(subject_id, .keep_all = T)
+
+head(q8vitals, n = 10L)
+
+```
+
+
+```{r Q8}
+
+#joining all subsets and renaming columns
 
 q8oldnames <- c(names(q8vitals), names(q8labs)[-(1:2)], 
             "dischtime", "admittime", "hospital_expire_flag", "binary_death30")
@@ -977,8 +990,8 @@ q8full <- q8vitals %>%
                       & (difftime(dischtime, admittime, units="days") < 30))
                       , 1, 0)) %>% 
   # rename columns to descriptive names
-  rename_at(vars(as.character(q8oldnames)), ~q8names) %>% 
-  print(width = Inf)
-  
+  rename_at(vars(as.character(q8oldnames)), ~q8names)
+
+head(q8full, n= 20L)
 
 ```

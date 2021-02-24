@@ -149,7 +149,7 @@ icu_cohort <- icustays_tble %>%
   # merge in labevents and chartevents tables
   # display the SQL query
   # collect SQL query result into memory as a tibble
-  # create an indivator for 30-day mortality
+  # create an indicator for 30-day mortality
   # save the final tibble to an `icu_cohort.rds` R data file in `mimiciv_shiny`
   print(width = Inf)
 

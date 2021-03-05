@@ -1,0 +1,12 @@
+name: mimiciv_shiny
+title: mimiciv_shiny
+username:
+account: c-lillian
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 3738887
+bundleId: 4304573
+url: https://c-lillian.shinyapps.io/mimiciv_shiny/
+when: 1614947704.11087
+asMultiple: FALSE
+asStatic: FALSE

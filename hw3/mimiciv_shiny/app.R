@@ -204,6 +204,8 @@ server <- function(input, output) {
         ggplot(aes_string(x = input$var1, y = input$var2)) +
             geom_point() +
             geom_smooth(method = lm) +
+            xlab(input$var1) +
+            ylab(input$var2) +
             theme(axis.text.x = element_text(hjust = 1, angle = 45), 
                   legend.position = "right")
             
@@ -224,6 +226,8 @@ server <- function(input, output) {
             varscount %>%
                 ggplot(aes(x = var1, y = n)) +
                 geom_boxplot() +
+                xlab(input$var1) +
+                ylab(input$var2) +
                 theme(axis.text.x = element_text(hjust = 1, angle = 45), 
                       legend.position = "right") +
                 facet_wrap(~ as.character(input$var1) + as.character(input$var2), 
@@ -236,8 +240,11 @@ server <- function(input, output) {
                 filter(!is.na(!!sym(input$var1))) %>%
                 filter(!is.na(!!sym(input$var2))) %>%
                 select(!!sym(input$var1), !!sym(input$var2)) %>%  
-                ggplot(aes_string(x = input$var1, y = input$var2)) +
+                ggplot(aes(x = eval(as.name(input$var1)), 
+                           y = eval(as.name(input$var2)))) +
                 geom_boxplot() +
+                xlab(input$var1) +
+                ylab(input$var2) +
                 theme(axis.text.x = element_text(hjust = 1, angle = 45), 
                       legend.position = "right") +
                 facet_wrap(~ as.character(input$var1), 
@@ -251,8 +258,11 @@ server <- function(input, output) {
                 filter(!is.na(!!sym(input$var1))) %>%
                 filter(!is.na(!!sym(input$var2))) %>%
                 select(!!sym(input$var1), !!sym(input$var2)) %>%  
-                ggplot(aes_string(x = input$var1, y = input$var2)) +
+                ggplot(aes(x = eval(as.name(input$var1)), 
+                           y = eval(as.name(input$var2)))) +
                 geom_boxplot() +
+                xlab(input$var1) +
+                ylab(input$var2) +
                 theme(axis.text.x = element_text(hjust = 1, angle = 45), 
                       legend.position = "right") +
                 facet_wrap(~ as.character(input$var2), 
@@ -265,8 +275,11 @@ server <- function(input, output) {
                 filter(!is.na(!!sym(input$var1))) %>%
                 filter(!is.na(!!sym(input$var2))) %>%
                 select(!!sym(input$var1), !!sym(input$var2)) %>%  
-                ggplot(aes_string(x = input$var1, y = input$var2)) +
+                ggplot(aes(x = eval(as.name(input$var1)), 
+                           y = eval(as.name(input$var2)))) +
                 geom_boxplot() +
+                xlab(input$var1) +
+                ylab(input$var2) +
                 theme(axis.text.x = element_text(hjust = 1, angle = 45), 
                       legend.position = "right")
 
@@ -289,6 +302,8 @@ server <- function(input, output) {
                 ggplot(aes(x = var1, y = var2)) +
                 geom_col() +
                 scale_x_discrete(guide = guide_axis(n.dodge=1)) +
+                xlab(input$var1) +
+                ylab(input$var2) +
                 theme(axis.text.x = element_text(hjust = 1, angle = 45), 
                       axis.text.y = element_blank(), 
                       legend.position = "right") +
@@ -305,6 +320,8 @@ server <- function(input, output) {
                            y = eval(as.name(input$var2)))) +
                 geom_col(aes(y =  eval(as.name(input$var2)), 
                              fill = eval(as.name(input$var1)))) +
+                xlab(input$var1) +
+                ylab(input$var2) +
                 theme(axis.text.x = element_text(hjust = 1, angle = 45), 
                       axis.text.y = element_text(hjust = 0, angle = 90), 
                       legend.position = "bottom")
@@ -321,6 +338,8 @@ server <- function(input, output) {
                            y = eval(as.name(input$var2)))) +
                 geom_col(aes(y =  eval(as.name(input$var2)), 
                              fill = eval(as.name(input$var2)))) +
+                xlab(input$var1) +
+                ylab(input$var2) +
                 theme(axis.text.x = element_text(hjust = 1, angle = 45), 
                       axis.text.y = element_text(hjust = 0, angle = 45), 
                       legend.position = "bottom")
@@ -334,6 +353,8 @@ server <- function(input, output) {
                 ggplot(aes(x = eval(as.name(input$var1)), 
                            y = eval(as.name(input$var2)))) +
                 geom_col() +
+                xlab(input$var1) +
+                ylab(input$var2) +
                 theme(axis.text.x = element_text(hjust = 1, angle = 45),
                       axis.text.y = element_text(hjust = 0, angle = 90), 
                       legend.position = "bottom")
@@ -358,6 +379,8 @@ server <- function(input, output) {
             ggplot(aes(x = eval(as.name(input$var1)), 
                        y = eval(as.name(input$var2)))) +
             geom_count(aes(color = ..n.., size = ..n..)) +
+            xlab(input$var1) +
+            ylab(input$var2) +
             theme(axis.text.x = element_text(hjust = 1, angle = 45), 
                   legend.position = "right")
             
@@ -383,7 +406,7 @@ server <- function(input, output) {
             bubble()
         }
         
-    }, height = 2000)
+    }, height = 1000)
     
     # chartevents table reactive function
     ctable <- reactive({
@@ -405,7 +428,7 @@ server <- function(input, output) {
     # chartevents table output
     output$charttable <- renderTable({
             ctable()
-    })
+    }, spacing = "xs")
     
     # labevents table reactive function
     ltable <- reactive({
@@ -426,7 +449,7 @@ server <- function(input, output) {
     # labevents table output
     output$labtable <- renderTable({
             ltable()
-    })
+    }, spacing = "xs")
 
     # demographics table reactive function
     dtable <- reactive({
@@ -461,7 +484,7 @@ server <- function(input, output) {
     # demographics table output
     output$demotable <- renderTable({
             dtable()
-    })  
+    }, spacing = "xs")  
     
     # admission stay and location table reactive function
     admtable <- reactive({
@@ -496,7 +519,7 @@ server <- function(input, output) {
     # admissions stay and location table output
     output$admittable <- renderTable({
             admtable()
-    })   
+    }, spacing = "xs")   
     
     # chart histogram plot output
     output$charthistPlot <- renderPlot({
@@ -575,7 +598,7 @@ server <- function(input, output) {
                       legend.position = "right") +
                 labs(x = as.character(input$demovar), 
                      y = "count") +
-                guides(fill=guide_legend(title=as.character(input$demovar)))
+                guides(fill=guide_legend(title=input$demovar))
             
         }
     })
@@ -611,7 +634,7 @@ server <- function(input, output) {
                       legend.position = "right") +
                 labs(x = as.character(input$admvar), 
                      y = "count") +
-                guides(fill=guide_legend(title=as.character(input$admvar)))
+                guides(fill=guide_legend(title=input$admvar))
         }
         
         

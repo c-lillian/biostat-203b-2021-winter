@@ -35,28 +35,116 @@ Through the Shiny app developed in HW3, we observe abundant missing values in th
 
 **Solution**:
 
-MCAR stands for Missing Completely At Random.
-MAR stands for Missing at Random.
-MNAR stands for Missing Not at Random.
+MCAR stands for Missing Completely At Random. A variable is missing completely at random if neither the variables in the dataset nor the unobserved value of the variable itself predict whether a value will be missing. In other words, the causes of missing data are unrelated to the data.
+
+MAR stands for Missing at Random. A variable is missing at random if other variables in the dataset can be used to predict the missingness of the variable. In other words, the probability of missingness is the same only within groups defined by the observed data. Most modern missing data methods start from the MAR assumption.
+
+MNAR stands for Missing Not at Random. A variable is missing not at random if the value of the unobserved variable itself predicts missingness. MNAR is the most complex case as the causes for the missingness vary for reasons unknown to the investigator.
+
 
 2. Explain in a couple of sentences how the Multiple Imputation by Chained Equations (MICE) work.
 
 **Solution**:
 
+Multiple Imputation by Chained Equations (MICE) works by creating multiple imputations to account for statistical uncertainty in the imputations, and utilizing a chained equations approach to allow for flexibility with handling variables of different types. Using the MICE technique assumes that for the variables used in the imputation procedure, the missing data are MAR. If this assumption is not met, then there could be biased estimates when MICE is implemented.
+
+The chained equation process involves 1) an imputation performed for every missing value in the data set, 2) placeholder imputations for one variable are set back to missing, 3) observed values from that one variable are regressed on other variables in the data set, with the one variable as the outcome variable, 4) missing values for that one variable are replaced with the imputations from the regression model if it is used as an outcome, and both observed and imputed values will be used if the variable is used as a predictor. The process is repeated for all the variables to complete one iteration/cycle. For later cycles, imputations are updated at each subsequent cycle. The accuracy of the imputations depends on the information density in the dataset. A dataset of completely independent variables with no correlation will not yield accurate imputations.
+
 
 3. Perform a data quality check of the ICU stays data. Discard variables with substantial missingness, say >5000 `NA`s. Replace apparent data entry errors by `NA`s.
 
 **Solution**:
+```{r Q3 data quality check}
+icu_cohort <- readRDS("./icu_cohort.rds")
 
+sapply(icu_cohort, function(x) sum(is.na(x)))
+
+# discarding variables with substantial missingness
+icu_cohort2 <- icu_cohort %>% 
+  select(-deathtime, -edregtime, -edouttime, -dod, 
+         -arterial_blood_pressure_systolic, -arterial_blood_pressure_mean,
+         -lactate)
+
+
+```
+
+
+```{r Q3 unique values, eval = F}
+
+sapply(icu_cohort2[,4:5], unique)
+sapply(icu_cohort2[,11:19], unique)
+sapply(icu_cohort2[,24:38], unique)
+sapply(icu_cohort2[,24:38], summary)
+```
+
+
+```{r Q3 replacement of apparent data entry errors}
+
+# replace 0s with NAs for heart rate, non invasive bp (systolic and mean),
+# respiratory rate, temperature in Fahrenheit
+icu_cohort2[, 24:28][icu_cohort2[, 24:28] == 0] = NA
+
+# replace 0s with NAs for calcium, creatinine, magnesium, and wbc
+icu_cohort2$calcium[icu_cohort2$calcium == 0] = NA
+icu_cohort2$creatinine[icu_cohort2$creatinine == 0] = NA
+icu_cohort2$magnesium[icu_cohort2$magnesium == 0] = NA
+icu_cohort2$wbc[icu_cohort2$wbc == 0] = NA
+
+
+# replace with NA if blood pressure values were less than 2
+icu_cohort2[, 25:26][icu_cohort2[, 25:26] < 2] = NA
+
+# replace with NA if blood pressure values were substantially abnormal
+icu_cohort2 <- icu_cohort2 %>% 
+  mutate(non_invasive_blood_pressure_systolic = ifelse(
+      (non_invasive_blood_pressure_systolic > 300) | 
+        (non_invasive_blood_pressure_systolic < 10), NA, 
+      non_invasive_blood_pressure_systolic),
+    non_invasive_blood_pressure_mean = ifelse(
+      non_invasive_blood_pressure_mean > 300 | 
+        (non_invasive_blood_pressure_mean < 10), NA,
+      non_invasive_blood_pressure_mean),
+    # replace with NA if heart rate values were substantially abnormal
+    heart_rate = ifelse(heart_rate > 300, NA, heart_rate)
+  )
+
+
+# replace with NA if temperature in Fahrenheit was less than 60
+icu_cohort2$temperature_fahrenheit[icu_cohort2$temperature_fahrenheit < 60] = NA
+
+# Check NAs
+sapply(icu_cohort2, function(x) sum(is.na(x)))
+
+```
 
 4. Impute missing values by `miceRanger` (request $m=3$ datasets). This step is very computational intensive. Make sure to save the imputation results as a file.
 
 **Solution**:
 
 
+Credit to Benson Wu @benson-wu for troubleshooting this code for me.
+
+```{r load miceObj, cache.lazy = FALSE}
+
+
+if(file.exists(str_c("./miceObj.RData"))){
+  load(str_c("./miceObj.RData"))
+} else{
+  miceObj <- miceRanger(
+    icu_cohort2, m = 3, max.depth = 10, returnModels = T, verbose = F
+                         )
+  save(miceObj, file = "./miceObj.RData")
+}
+
+```
+
+
 5. Make imputation diagnostic plots and explain what they mean.
 
 **Solution**:
+```{r imputation diagnostic plots}
+
+```
 
 
 6. Obtain a complete data set by averaging the 3 imputed data sets.

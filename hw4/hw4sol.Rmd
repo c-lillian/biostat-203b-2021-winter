@@ -1,5 +1,5 @@
 ---
-title: "Biostat 203B Homework 4 (Draft)"
+title: "Biostat 203B Homework 4"
 subtitle: Due Mar 12 @ 11:59PM
 output:
   # ioslides_presentation: default
@@ -67,7 +67,7 @@ icu_cohort2 <- icu_cohort %>%
 
 
 ```
-
+I utilized sapply to identify missing values and distribution of values in the dataset. This allowed to identify patients with abnormal values such as a heart rate of 0 when the patient survived and had normal bp measurements for the other columns. I re-ran these built-in functions as necessary to identify data entry errors and filtered them out in the subsequent code chunk.
 
 ```{r Q3 unique values, eval = F}
 
@@ -76,7 +76,7 @@ sapply(icu_cohort2[,11:19], unique)
 sapply(icu_cohort2[,24:38], unique)
 sapply(icu_cohort2[,24:38], summary)
 ```
-
+Here, I filter out apparent data entry errors. I remained fairly conservative in my removal of abnormal data values, and primarily focused on 0s in the data when other columns appeared to have normal values, and also focused on possible scale conversion errors with Fahrenheit/Celsius that may have been recorded under the Fahrenheit column of the original data set.
 
 ```{r Q3 replacement of apparent data entry errors}
 

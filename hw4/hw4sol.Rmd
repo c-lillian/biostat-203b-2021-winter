@@ -2,10 +2,10 @@
 title: "Biostat 203B Homework 4"
 subtitle: Due Mar 12 @ 11:59PM
 output:
-  # ioslides_presentation: default
   html_document:
     toc: true
     toc_depth: 4
+  # ioslides_presentation: default
 ---
 
 ```{r, include = FALSE}
@@ -174,12 +174,11 @@ plotModelError(miceObj, vars = 'allNumeric')
 ```
 
 
-```{r plotVarImportance, fig.align = 'center', fig.height=8}
+```{r plotVarImportance, fig.align = 'center', fig.width=10}
 plotVarImportance(miceObj, 
-                  tl.cex = 0.9, 
+                  tl.cex = 0.7, 
                   cl.cex = 0.7, cl.ratio = 0.1, cl.align.text = "l", 
-                  number.cex = 0.55,
-                  mar = c(1,1,1,1))
+                  number.cex = 0.5)
 ```
 
 

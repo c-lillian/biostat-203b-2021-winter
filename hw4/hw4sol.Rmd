@@ -259,14 +259,15 @@ complete.dataset <- complete.dataset %>%
   # recode gender to descriptive names
   mutate(gender = ifelse(gender == 2, 'Male', 'Female')) %>% 
   # recode ethnicity to descriptive names
-  mutate(ethnicity = fct_recode(x, "1" = "American Indian/Alaska Native",
-                           "2" = "Asian",
-                "3" = "Black/African American",
-                "4" = "Hispanic/Latino",
-                "5" = "Other",
-                "6" = "Unable to Obtain",
-                "7" = "Unknown",
-                "8" = "White"))
+  mutate(ethnicity = fct_recode(ethnicity, 
+                                "American Indian/Alaska Native" = "1",
+                                "Asian" = "2",
+                                "Black/African American" = "3",
+                                "Hispanic/Latino" = "4",
+                                "Other" = "5",
+                                "Unable to Obtain" = "6",
+                                "Unknown" = "7",
+                                "White" = "8"))
 
 
 
@@ -293,6 +294,8 @@ test  <- complete.dataset[inds$test, ]
 2. Train the models using the training set.
 ```{r logistic regression}
 
+#this is the model this is not training
+
 glm1 <- glm(mortality30 ~ gender + marital_status + ethnicity + admitage +
               bicarbonate + calcium + chloride + creatinine + glucose + 
               magnesium + potassium + sodium + hematocrit + wbc + heart_rate +
@@ -301,6 +304,8 @@ glm1 <- glm(mortality30 ~ gender + marital_status + ethnicity + admitage +
               respiratory_rate + temperature_fahrenheit, 
             family = "binomial",
             data = complete.dataset)
+
+summary(glm1)
 
 ```
 
